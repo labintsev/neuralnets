@@ -24,7 +24,6 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     return np.tile(a, reps=(n, 1))
 
 
-
 def inplace_operation(a: np.array, b: np.array) -> None:
     """
     Compute ((a+b)*(-a/2)) in place (without copy)
@@ -33,7 +32,6 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :return: None
     """
     np.multiply(np.add(a, b), np.negative(np.divide(a, 2)), out=a)
-
 
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
@@ -53,7 +51,6 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :return: 1D array of elements
     """
     return a[np.arange(a.shape[0]), indices]
-
 
 
 def self_inners(a: np.array) -> np.array:
