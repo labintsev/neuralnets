@@ -9,9 +9,10 @@ def random_matrix(n: int) -> np.array:
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
     array type must be uint8
     :param n: matrix size
-    :return: random n x n matrix
+    :return: random n x n x 3 matrix
     """
-    return np.random.randint(0, 256, (n, n, 3), dtype=np.uint8)
+    return np.array(0, 255, size=(n, n, 3), dtype=np.uint8)
+
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
