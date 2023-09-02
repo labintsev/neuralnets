@@ -11,7 +11,7 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return np.array([0])
+    return np.array(size=(n, n, 3), dtype=np.uint8)
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
