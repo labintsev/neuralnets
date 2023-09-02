@@ -1,5 +1,6 @@
 # Нейронные сети
 Практика для курса по нейронным сетям.   
+Ссылки на свои репо присылайте на адрес `ailabintsev@fa.ru`
 Слайды к лекциям можно найти [здесь](https://drive.google.com/drive/folders/114QaNFTlvY3oXLmzqiGzE48MfpozMTCh?usp=drive_link).
 
 ## Начало работы
@@ -22,7 +23,7 @@ source venv/bin/activate
 Windows:
 ```commandline
 python -m venv venv
-venv/bin/Activate.bat
+venv/Scripts/activate.bat
 ```
 
 Установка зависимостей:
