@@ -3,6 +3,7 @@
 
 import numpy as np
 
+
 def random_matrix(n: int) -> np.array:
     """
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
