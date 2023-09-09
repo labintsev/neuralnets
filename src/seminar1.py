@@ -12,6 +12,7 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
+    # Слово
     return np.random.uniform(0, 255, size=(n, n, 3)).astype(int)
 
 
