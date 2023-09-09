@@ -32,6 +32,7 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
+    a *= np.dot((a+b), ((a*(-1))/2))
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
     """
@@ -49,8 +50,11 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return a
-
+    B = []
+    for i in range(len(indices)):
+        c = indices[i]
+        B.append(a[i][c])
+    return B
 
 def self_inners(a: np.array) -> np.array:
     """
@@ -59,4 +63,9 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    return a
+    c = np.ones((a.shape[0], a.shape[0]))
+    print(c)
+    for i in range(a.shape[0]):
+        for j in range(a.shape[0]):
+            c[i][j] = np.dot(a[i],a[j])
+    return c
