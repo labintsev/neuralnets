@@ -31,6 +31,9 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
+    a += b
+    a *= -1
+    a /= 2
 
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
