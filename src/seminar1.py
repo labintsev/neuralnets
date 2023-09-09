@@ -23,7 +23,7 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.tile(a, (n,1))
+    return np.tile(a, (n, 1))
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
