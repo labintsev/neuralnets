@@ -2,6 +2,7 @@
 # Numpy fundamentals
 
 import numpy as np
+import tensorflow
 
 
 def random_matrix(n: int) -> np.array:
@@ -11,7 +12,7 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return np.array(0, 255, size=(n, n, 3), dtype=np.uint8)
+    return np.random.uniform(0, 255, size=(n, n, 3)).astype(int)
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -21,7 +22,7 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.ones(n)
+    return
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
