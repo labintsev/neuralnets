@@ -59,6 +59,4 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    print(a)
-    print(np.array([[np.dot(a[i], a[j]) for i in range(len(a))] for j in range(len(a))]))
     return np.array([[np.dot(a[i], a[j]) for i in range(len(a))] for j in range(len(a))])
