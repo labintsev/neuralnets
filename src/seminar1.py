@@ -21,7 +21,7 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.ones(n)
+    return np.ones(n) * a
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
