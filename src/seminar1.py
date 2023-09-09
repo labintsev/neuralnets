@@ -11,8 +11,7 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return np.array(0, 255, size=(n, n, 3), dtype=np.uint8)
-
+    return np.array((np.random.uniform(0, 256,  size=(n, n, 3))), dtype = np.uint8)
 
 def broadcast_array(a: np.array, n: int) -> np.array:
     """
@@ -21,8 +20,10 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.ones(n)
-
+    current_matrix = a
+    for i in range(n-1):
+        current_matrix = np.vstack([current_matrix, a])
+    return current_matrix
 
 def inplace_operation(a: np.array, b: np.array) -> None:
     """
@@ -31,7 +32,6 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
-
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
     """
