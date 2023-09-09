@@ -5,13 +5,15 @@ import numpy as np
 
 
 def random_matrix(n: int) -> np.array:
+    random_values = np.random.uniform(low=0, high=255, size=(n, n, 3))
+    random_m = random_values.astype(np.uint8)
     """
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
     array type must be uint8
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return np.random.random_integers(0, 255, size=(n, n, 3))
+    return random_m
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -52,7 +54,7 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return a
+    return a[np.arange(0, a.shape[0]), indices]
 
 
 def self_inners(a: np.array) -> np.array:
@@ -62,4 +64,4 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    return a
+    return a @ a.T
