@@ -128,7 +128,6 @@ class SoftmaxClassifier:
 
 
 def train():
-    """1 point"""
     # TODO 5: Find the best hyperparameters
     # assert test accuracy > 0.22
     # weights images must look like in lecture slides
