@@ -77,7 +77,7 @@ class TestSoftmaxGrad(unittest.TestCase):
 
 
 class TestSoftmaxClassifier(unittest.TestCase):
-    """1 point"""
+    """2 points"""
     def testOverFitting(self):
         N_samples = 8
         (x_train, y_train), _ = get_preprocessed_data()
