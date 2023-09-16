@@ -36,14 +36,14 @@ class TestSoftmaxLoss(unittest.TestCase):
         W = np.ones((3073, 2)) * 1e-3
         y = np.array([0, 0, 0, 0], dtype=int)
         loss, _ = softmax_loss_and_grad(W, x, y, 1.)
-        print(loss)
+        self.assertAlmostEqual(loss, 0.699, places=3)
 
     def testLoss10(self):
         x = np.ones((4, 3073)) * 100
         W = np.ones((3073, 10)) * 1e-3
         y = np.array([0, 0, 0, 0], dtype=int)
         loss, _ = softmax_loss_and_grad(W, x, y, 1.)
-        print(loss)
+        self.assertAlmostEqual(loss, 2.333, places=3)
 
 
 class TestSoftmaxGrad(unittest.TestCase):
