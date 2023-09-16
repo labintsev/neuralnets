@@ -11,7 +11,11 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
+<<<<<<< HEAD
     return np.random.randint(low=0., high=255., size=(n,n,3), dtype=np.uint8)
+=======
+    return np.random.randint(0, 255, size=(n, n, 3), dtype=np.uint8)
+>>>>>>> labintsev/master
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -30,11 +34,18 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param a: matrix A
     :param b: matrix B
     :return: None
+<<<<<<< HEAD
     """ 
     np.add(a,b,out=b)
     np.divide(a,2,out=a)
     np.negative(a,out=a)
     np.multiply(a,b,out=a)
+=======
+    """
+    a += b
+    a *= -1
+    a /= 2
+>>>>>>> labintsev/master
 
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
