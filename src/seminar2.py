@@ -13,7 +13,10 @@ def softmax(X: np.array) -> np.array:
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return X
+
+    exps = np.exp(X)
+    exps_sum = exps.sum(axis = -1, keepdims = True)
+    return exps/exps_sum
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
