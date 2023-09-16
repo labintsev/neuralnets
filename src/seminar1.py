@@ -11,7 +11,8 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return np.random.randint(0, 255, size=(n, n, 3), dtype=np.uint8)
+    matrix_A = np.random.uniform(0, 255, size=(n, n, 3)).astype('uint8')
+    return matrix_A
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -21,7 +22,8 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.ones(n)
+    broadcast = np.row_stack([a] * n)
+    return broadcast
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
@@ -32,8 +34,7 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :return: None
     """
     a += b
-    a *= -1
-    a /= 2
+    a *= -(a - b)/2
 
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
@@ -52,7 +53,8 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return a
+    elements = np.choose(indices, a.T)
+    return elements
 
 
 def self_inners(a: np.array) -> np.array:
@@ -62,4 +64,5 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    return a
+    matrix_A = a @ a.T
+    return matrix_A
