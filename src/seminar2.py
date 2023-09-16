@@ -6,14 +6,16 @@ import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 
-def softmax(X: np.array) -> np.array:
+def softmax(Z: np.array) -> np.array:
     """
     TODO 1:
     Compute softmax of 2D array along axis -1
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return X
+    exps= np.exp(Z)
+    exps_sum= exps.sum(axis=-1,keepdims=True)
+    return exps/exps_sum
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
