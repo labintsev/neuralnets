@@ -6,7 +6,7 @@ import numpy as np
 
 def random_matrix(n: int) -> np.array:
     rand_values = np.random.randint(0, 255, (n, n, 3))
-    rand_matrix = rand_values.astype(np.unit8)
+    rand_matrix = rand_values.astype(np.uint8)
     """
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
     array type must be uint8
@@ -23,7 +23,7 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.ones(n)
+    return np.tile(a, (n, 1))
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
@@ -54,7 +54,7 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return a
+    return a[np.arange(0, a.shape[0]), indices]
 
 
 def self_inners(a: np.array) -> np.array:
@@ -64,4 +64,4 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    return a
+    return a @ a.T
