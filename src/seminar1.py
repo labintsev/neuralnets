@@ -6,9 +6,9 @@ def random_matrix(n: int) -> np.array:
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
     array type must be uint8
     :param n: matrix size
-    :return: random n x n matrix
+    :return: random n x n x 3 matrix
     """
-    return np.array(np.random.randint(0, 256, size=(n, n, 3), dtype=np.uint8))
+    return np.random.randint(0, 256, size=(n, n, 3), dtype=np.uint8)
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -28,10 +28,8 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
-    a+=b
-    a*=-0.5
-
-    return None
+    a += b
+    a *= -0.5
 
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
@@ -50,12 +48,7 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    result = []
-    for idx in indices:
-        result.append(a[idx, idx])
-    return np.array(result)
-
-
+    return a[np.arange(len(a)), indices]
 
 
 def self_inners(a: np.array) -> np.array:
