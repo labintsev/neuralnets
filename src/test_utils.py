@@ -54,8 +54,8 @@ def get_preprocessed_data():
     y_train = y_train.ravel()
     y_test = y_test.ravel()
 
-    x_train = x_train.astype(float).reshape(x_train.shape[0], -1)
-    x_test = x_test.astype(float).reshape(x_test.shape[0], -1)
+    x_train = x_train.astype(np.float16).reshape(x_train.shape[0], -1)
+    x_test = x_test.astype(np.float16).reshape(x_test.shape[0], -1)
 
     mean_image = np.mean(x_train, axis=0)
     x_train -= mean_image

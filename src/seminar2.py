@@ -13,7 +13,9 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
+    Z = np.exp(Z) / np.sum(np.exp(Z), axis=-1, keepdims=True)
     return Z
+
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -29,20 +31,28 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     """
     loss = 0.0
     dL_dW = np.zeros_like(W)
-    # *****START OF YOUR CODE*****
+    # *****START OF YOUR CODE****
+    N = len(X)
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    z = X.dot(W)
+    softmax_probs = softmax(z)
+    loss = -np.log(softmax_probs[range(N), y]).mean()
+    loss += np.sum(W * W)
 
     # 2. Backward pass, compute intermediate dL/dZ
+    dL_dZ = softmax_probs.copy()
+    dL_dZ[range(N), y] -= 1
+    dL_dZ /= N
 
     # 3. Compute data gradient dL/dW
+    dL_dW = X.T.dot(dL_dZ)
 
     # 4. Compute regularization gradient
+    dL_dW += (2 * W)
 
     # 5. Return loss and sum of data + reg gradients
-
-    # *****END OF YOUR CODE*****
-
     return loss, dL_dW
+    # *****END OF YOUR CODE*****
 
 
 class SoftmaxClassifier:
@@ -76,19 +86,10 @@ class SoftmaxClassifier:
         loss_history = []
         for it in range(num_iters):
             X_batch, y_batch = None, None
-            #########################################################################
-            # TODO 3:                                                               #
-            # Sample batch_size elements from the training data and their           #
-            # corresponding labels to use in this round of gradient descent.        #
-            # Store the data in X_batch and their corresponding labels in           #
-            # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
-            # and y_batch should have shape (batch_size,)                           #
-            #                                                                       #
-            # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
-            # replacement is faster than sampling without replacement.              #
-            #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            batch_indices = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             # evaluate loss and gradient
@@ -96,12 +97,8 @@ class SoftmaxClassifier:
             loss_history.append(loss)
 
             # perform parameter update
-            #########################################################################
-            # TODO 4:                                                               #
-            # Update the weights using the gradient and the learning rate.          #
-            #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
                 if verbose:
@@ -131,15 +128,15 @@ def train():
     # TODO 5: Find the best hyperparameters
     # assert test accuracy > 0.22
     # weights images must look like in lecture slides
-
     # ***** START OF YOUR CODE *****
-    learning_rate = 0
-    reg = 0
-    num_iters = 0
-    batch_size = 0
+    learning_rate = 1e-3
+    reg = 1e-4
+    num_iters = 10000
+    batch_size = 64
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
+    x_train = x_train.astype(np.float16)
     cls = SoftmaxClassifier()
     t0 = datetime.datetime.now()
     loss_history = cls.train(x_train, y_train, learning_rate, reg, num_iters, batch_size, verbose=True)
@@ -157,7 +154,7 @@ batch_size = {batch_size}
 Final loss: {loss_history[-1]}   
 Train accuracy: {cls.evaluate(x_train, y_train)}   
 Test accuracy: {cls.evaluate(x_test, y_test)}  
-    
+
 <img src="weights.png">  
 <br>
 <img src="loss.png">
@@ -165,7 +162,7 @@ Test accuracy: {cls.evaluate(x_test, y_test)}
 
     print(report)
 
-    out_dir = 'output/seminar2'
+    out_dir = 'output\\seminar2'
     report_path = os.path.join(out_dir, 'report.md')
     with open(report_path, 'w') as f:
         f.write(report)
