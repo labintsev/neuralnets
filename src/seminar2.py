@@ -13,7 +13,9 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    Z_exp = np.exp(Z-np.max(Z,axis=-1,keepdims=True))
+
+    return Z_exp/np.sum(Z_exp,axis=-1,keepdims=True)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -30,16 +32,27 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     loss = 0.0
     dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
+
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-
+    N = X.shape[0]
+    D = X.shape[0]
+    C = W.shape[0]
+    scores = np.dot(X, W)
+    exp_scores = np.exp(scores)
+    probs = exp_scores/np.sum(exp_scores, axis = 1, keepdims = True)
     # 2. Backward pass, compute intermediate dL/dZ
-
+    data_loss = -np.log(probs[range(N), y])
+    data_loss = np.sum(data_loss)/N
+    reg_loss = reg * np.sum(W**2)
+    loss = data_loss + reg_loss
+    dL_dZ = probs
+    dL_dZ[range(N),y] -=1
+    dL_dZ /=N
     # 3. Compute data gradient dL/dW
-
+    dL_dW = np.dot(X.T, dL_dZ)
     # 4. Compute regularization gradient
-
+    dL_dW += 2 * reg * W
     # 5. Return loss and sum of data + reg gradients
-
     # *****END OF YOUR CODE*****
 
     return loss, dL_dW
