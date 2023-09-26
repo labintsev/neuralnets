@@ -103,7 +103,7 @@ class SoftmaxClassifier:
             # TODO 4:                                                               #
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)****
             self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
