@@ -40,7 +40,7 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     dL_dZ /= N
     #gradient dL/dW
     dL_dW = X.T.dot(dL_dZ)
-    #regularization gradient
+    #regularization gradien
     dL_dW += (2*W)
 
     return loss, dL_dW
