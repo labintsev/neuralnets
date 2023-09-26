@@ -106,6 +106,7 @@ class SoftmaxClassifier:
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)****
             self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
             if it % 100 == 0:
                 if verbose:
                     print(f'iteration {it} / {num_iters}: loss {loss:.3f} ')
