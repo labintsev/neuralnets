@@ -31,8 +31,9 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
+    b *= -a
+    a *= -a
     a += b
-    a *= -1
     a /= 2
 
 
@@ -64,3 +65,5 @@ def self_inners(a: np.array) -> np.array:
     :return: 2D array of inners product shape=(m, m)
     """
     return a @ a.T
+
+
