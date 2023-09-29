@@ -14,7 +14,7 @@ def softmax(X: np.array) -> np.array:
     :return: softmax 2D array, shape (N, C)
     """
     t = np.exp(X)
-    return  t / t.sum()
+    return  t / t.sum(1)[:, None]
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -31,21 +31,29 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     loss = 0.0
     dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
-    D, C = W.shape
-    p_y= np.zeros((C,))
+    N = X.shape[0]
+    y = np.array(y)
+    p_y = np.zeros((y.size, y.max() + 1))
+
+    p_y[np.arange(N), y] = 1
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-    S = p_y*softmax(X @ W)
-    L = S.sum() + sum(W**2)
+    Z = X @ W
+    S = softmax(Z)
+    p_y_S = -np.log(S[np.arange(N), y])
+    loss = p_y_S.sum() / N + (W**2).sum() / 2 * reg
     # 2. Backward pass, compute intermediate dL/dZ
+
     dL_dZ = S.copy()
-    dL_dZ[y] += -1
+    dL_dZ[np.arange(y.size), y] += -1
+    dL_dZ /= y.size
+
 
     # 3. Compute data gradient dL/dW
-    dL_dW = - p_y / S * X.T
+    dL_dW =  X.T.dot(dL_dZ)
     # 4. Compute regularization gradient
-
+    dL_dW_reg = reg*W
     # 5. Return loss and sum of data + reg gradients
-
+    dL_dW = dL_dW + dL_dW_reg
     # *****END OF YOUR CODE*****
 
     return loss, dL_dW
@@ -94,7 +102,9 @@ class SoftmaxClassifier:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            batch_indices = np.random.choice(num_train, batch_size)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             # evaluate loss and gradient
@@ -107,7 +117,7 @@ class SoftmaxClassifier:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
                 if verbose:
