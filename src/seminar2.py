@@ -13,7 +13,8 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    temp = np.exp(Z)
+    return temp / np.tile(temp.sum(axis=-1).reshape((-1, 1)), Z.shape[-1]).reshape(Z.shape)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -31,13 +32,19 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-
+    N, D = X.shape
+    z = X @ W
+    s = softmax(z)
+    loss = -np.log(s[range(N), y]).mean()
+    loss += np.sum(W * W)
     # 2. Backward pass, compute intermediate dL/dZ
-
+    dLdz = s.copy()
+    dLdz[range(N), y] -= 1
     # 3. Compute data gradient dL/dW
-
+    dL_dW = X.T @ dLdz
+    dL_dW /= N
     # 4. Compute regularization gradient
-
+    dL_dW += (2*W)
     # 5. Return loss and sum of data + reg gradients
 
     # *****END OF YOUR CODE*****
