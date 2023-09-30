@@ -31,9 +31,6 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
-    # a += b
-    # a *= -1
-    # a /= 2
     return np.multiply(np.add(a, b), np.negative(np.divide(a, 2)), out=a)
 
 
@@ -53,7 +50,6 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-
     return [row[index] for row, index in zip(a, indices)]
 
 
