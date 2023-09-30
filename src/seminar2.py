@@ -2,10 +2,6 @@
 import datetime
 import os.path
 
-from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
-
-import datetime
-import os.path
 import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
@@ -67,9 +63,9 @@ class SoftmaxClassifier:
         Train classifier with stochastic gradient descent
         Inputs:
         - X: A numpy array of shape (N, D) containing training data; there are N
-        training samples each of dimension D.
+          training samples each of dimension D.
         - y: A numpy array of shape (N,) containing training labels; y[i] = c
-        means that X[i] has label 0 <= c < C for C classes.
+          means that X[i] has label 0 <= c < C for C classes.
         - learning_rate: (float) learning rate for optimization.
         - reg: (float) regularization strength.
         - num_iters: (integer) number of steps to take when optimizing
@@ -81,7 +77,7 @@ class SoftmaxClassifier:
         num_train, dim = X.shape
         num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is number of classes
         if self.W is None:
-         # lazily initialize W
+            # lazily initialize W
             self.W = 0.001 * np.random.randn(dim, num_classes)
 
         # Run stochastic gradient descent to optimize W
@@ -89,15 +85,15 @@ class SoftmaxClassifier:
         for it in range(num_iters):
             X_batch, y_batch = None, None
             #########################################################################
-            # TODO 3: #
-            # Sample batch_size elements from the training data and their #
-            # corresponding labels to use in this round of gradient descent. #
-            # Store the data in X_batch and their corresponding labels in #
-            # y_batch; after sampling X_batch should have shape (batch_size, dim) #
-            # and y_batch should have shape (batch_size,) #
-            # #
-            # Hint: Use np.random.choice to generate batch_indices. Sampling with #
-            # replacement is faster than sampling without replacement. #
+            # TODO 3:                                                               #
+            # Sample batch_size elements from the training data and their           #
+            # corresponding labels to use in this round of gradient descent.        #
+            # Store the data in X_batch and their corresponding labels in           #
+            # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
+            # and y_batch should have shape (batch_size,)                           #
+            #                                                                       #
+            # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
+            # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             batch_indices = np.random.choice(num_train, batch_size, replace=True)
@@ -109,14 +105,12 @@ class SoftmaxClassifier:
             loss, grad = softmax_loss_and_grad(self.W, X_batch, y_batch, reg)
             loss_history.append(loss)
 
-
-
             # perform parameter update
             #########################################################################
-            # TODO 4: #
-            # Update the weights using the gradient and the learning rate. #
+            # TODO 4:                                                               #
+            # Update the weights using the gradient and the learning rate.          #
             #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE) ** ** *
+            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
@@ -125,21 +119,18 @@ class SoftmaxClassifier:
 
         return loss_history
 
-
     def evaluate(self, X, y):
         """
         Use the trained weights of this linear classifier to predict labels for
         data points and evaluate accuracy.
         Inputs:
         - X: A numpy array of shape (N, D) containing training data; there are N
-        training samples each of dimension D.
+          training samples each of dimension D.
         Returns:
         - y_predicted: Predicted labels for the data in X. y_predicted is a 1-dimensional
-        array of length N, and each element is an integer giving the predicted
-        class.
+          array of length N, and each element is an integer giving the predicted
+          class.
         """
-
-
         z = X @ self.W
         y_predicted = np.argmax(z, axis=1)
         accuracy = np.mean(y_predicted == y)
@@ -165,21 +156,21 @@ def train():
     t1 = datetime.datetime.now()
     dt = t1 - t0
 
-    report = f"""# Training Softmax classifier 
-datetime: {t1.isoformat(' ', 'seconds')} 
-Well done in: {dt.seconds} seconds 
-learning_rate = {learning_rate} 
-reg = {reg} 
-num_iters = {num_iters} 
-batch_size = {batch_size} 
+    report = f"""# Training Softmax classifier  
+datetime: {t1.isoformat(' ', 'seconds')}  
+Well done in: {dt.seconds} seconds  
+learning_rate = {learning_rate}  
+reg = {reg}  
+num_iters = {num_iters}  
+batch_size = {batch_size}  
 
-Final loss: {loss_history[-1]} 
-Train accuracy: {cls.evaluate(x_train, y_train)} 
-Test accuracy: {cls.evaluate(x_test, y_test)} 
+Final loss: {loss_history[-1]}   
+Train accuracy: {cls.evaluate(x_train, y_train)}   
+Test accuracy: {cls.evaluate(x_test, y_test)}  
 
-<img src="weights.png"> 
-<br> 
-<img src="loss.png"> 
+<img src="weights.png">  
+<br>
+<img src="loss.png">
 """
 
     print(report)
@@ -191,7 +182,6 @@ Test accuracy: {cls.evaluate(x_test, y_test)}
     visualize_weights(cls, out_dir)
     visualize_loss(loss_history, out_dir)
 
-#######
+
 if __name__ == '__main__':
     train()
-
