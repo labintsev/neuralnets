@@ -191,7 +191,7 @@ Test accuracy: {cls.evaluate(x_test, y_test)}
     visualize_weights(cls, out_dir)
     visualize_loss(loss_history, out_dir)
 
-
+#######
 if __name__ == '__main__':
     train()
 
