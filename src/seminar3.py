@@ -72,7 +72,7 @@ class ReLULayer:
         # ReLU Doesn't have any parameters
         return {}
 
-
+#########
 class DenseLayer:
     def __init__(self, n_input, n_output):
         self.W = Param(0.001 * np.random.randn(n_input, n_output))
