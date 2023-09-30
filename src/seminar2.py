@@ -85,7 +85,7 @@ class SoftmaxClassifier:
         for it in range(num_iters):
             X_batch, y_batch = None, None
             #########################################################################
-            # TODO 3:                                                               #
+            # TODO 3:
             # Sample batch_size elements from the training data and their           #
             # corresponding labels to use in this round of gradient descent.        #
             # Store the data in X_batch and their corresponding labels in           #
@@ -107,7 +107,7 @@ class SoftmaxClassifier:
 
             # perform parameter update
             #########################################################################
-            # TODO 4:                                                               #
+            # TODO 4:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
