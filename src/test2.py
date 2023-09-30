@@ -36,14 +36,14 @@ class TestSoftmaxLoss(unittest.TestCase):
         W = np.ones((3073, 2)) * 1e-3
         y = np.array([0, 0, 0, 0], dtype=int)
         loss, _ = softmax_loss_and_grad(W, x, y, 1.)
-        print(loss)
+        self.assertAlmostEqual(loss, 0.699, places=3)
 
     def testLoss10(self):
         x = np.ones((4, 3073)) * 100
         W = np.ones((3073, 10)) * 1e-3
         y = np.array([0, 0, 0, 0], dtype=int)
         loss, _ = softmax_loss_and_grad(W, x, y, 1.)
-        print(loss)
+        self.assertAlmostEqual(loss, 2.333, places=3)
 
 
 class TestSoftmaxGrad(unittest.TestCase):
@@ -75,6 +75,14 @@ class TestSoftmaxGrad(unittest.TestCase):
         result = check_gradient(lambda w: softmax_loss_and_grad(w, x, y, 100), W)
         self.assertTrue(result)
 
+    def testNonZero(self):
+        N, D, C = 1, 32, 10
+        x = np.ones((N, D))
+        W = np.ones((D, C)) * 1e-3
+        y = [0]
+        loss, grad = softmax_loss_and_grad(W, x, y, 0)
+        self.assertFalse(np.array_equal(grad, np.zeros_like(W)))
+
 
 class TestSoftmaxClassifier(unittest.TestCase):
     """2 points"""
@@ -87,6 +95,10 @@ class TestSoftmaxClassifier(unittest.TestCase):
         cls = SoftmaxClassifier()
         loss_history = cls.train(X_dev, y_dev,
                                  learning_rate=1e-3, reg=0, num_iters=10000,
-                                 batch_size=N_samples, verbose=True)
+                                 batch_size=N_samples, verbose=False)
         self.assertLess(loss_history[-1], 1.0)
         self.assertGreater(loss_history[-1], 0.0)
+
+
+if __name__ == '__main__':
+    unittest.main()
