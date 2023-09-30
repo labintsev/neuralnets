@@ -42,7 +42,7 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     # ce_loss = -1 * np.sum(y @ np.log(S))
     # loss = ce_loss - reg_loss * reg
     loss = - np.log(S[range(N), y]).mean()
-    loss += np.sum(W**2)
+    loss += reg * np.sum(W**2)
 
     # 2. Backward pass, compute intermediate dL/dZ
     dz = S.copy()
@@ -146,10 +146,10 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    learning_rate = 1e-5
+    learning_rate = 1e-4
     reg = 1e-2
     num_iters = 10**4
-    batch_size = 2**5
+    batch_size = 2**4
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
