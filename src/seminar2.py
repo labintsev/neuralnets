@@ -2,18 +2,23 @@
 import datetime
 import os.path
 
+from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
+
+import datetime
+import os.path
 import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 
-def softmax(Z: np.array) -> np.array:
+def softmax(X: np.array) -> np.array:
     """
     TODO 1:
-    Compute softmax of 2D array Z along axis -1
-    :param Z: 2D array, shape (N, C)
+    Compute softmax of 2D array along axis -1
+    :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    e_x = np.exp(X - np.max(X, axis=1, keepdims=True))
+    return e_x / e_x.sum(axis=1, keepdims=True)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -29,15 +34,22 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     """
     loss = 0.0
     dL_dW = np.zeros_like(W)
+    N = len(X)
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    z = X.dot(W)
+    softmax_probs = softmax(z)
 
+    loss = -np.log(softmax_probs[range(N), y]).mean()
+    loss += np.sum(W * W)
     # 2. Backward pass, compute intermediate dL/dZ
-
+    dL_dZ = softmax_probs.copy()
+    dL_dZ[range(N), y] -= 1
+    dL_dZ /= N
     # 3. Compute data gradient dL/dW
-
+    dL_dW = X.T.dot(dL_dZ)
     # 4. Compute regularization gradient
-
+    dL_dW += (2 * W)
     # 5. Return loss and sum of data + reg gradients
 
     # *****END OF YOUR CODE*****
@@ -55,9 +67,9 @@ class SoftmaxClassifier:
         Train classifier with stochastic gradient descent
         Inputs:
         - X: A numpy array of shape (N, D) containing training data; there are N
-          training samples each of dimension D.
+        training samples each of dimension D.
         - y: A numpy array of shape (N,) containing training labels; y[i] = c
-          means that X[i] has label 0 <= c < C for C classes.
+        means that X[i] has label 0 <= c < C for C classes.
         - learning_rate: (float) learning rate for optimization.
         - reg: (float) regularization strength.
         - num_iters: (integer) number of steps to take when optimizing
@@ -69,7 +81,7 @@ class SoftmaxClassifier:
         num_train, dim = X.shape
         num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is number of classes
         if self.W is None:
-            # lazily initialize W
+         # lazily initialize W
             self.W = 0.001 * np.random.randn(dim, num_classes)
 
         # Run stochastic gradient descent to optimize W
@@ -77,31 +89,35 @@ class SoftmaxClassifier:
         for it in range(num_iters):
             X_batch, y_batch = None, None
             #########################################################################
-            # TODO 3:                                                               #
-            # Sample batch_size elements from the training data and their           #
-            # corresponding labels to use in this round of gradient descent.        #
-            # Store the data in X_batch and their corresponding labels in           #
-            # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
-            # and y_batch should have shape (batch_size,)                           #
-            #                                                                       #
-            # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
-            # replacement is faster than sampling without replacement.              #
+            # TODO 3: #
+            # Sample batch_size elements from the training data and their #
+            # corresponding labels to use in this round of gradient descent. #
+            # Store the data in X_batch and their corresponding labels in #
+            # y_batch; after sampling X_batch should have shape (batch_size, dim) #
+            # and y_batch should have shape (batch_size,) #
+            # #
+            # Hint: Use np.random.choice to generate batch_indices. Sampling with #
+            # replacement is faster than sampling without replacement. #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            batch_indices = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             # evaluate loss and gradient
             loss, grad = softmax_loss_and_grad(self.W, X_batch, y_batch, reg)
             loss_history.append(loss)
 
+
+
             # perform parameter update
             #########################################################################
-            # TODO 4:                                                               #
-            # Update the weights using the gradient and the learning rate.          #
+            # TODO 4: #
+            # Update the weights using the gradient and the learning rate. #
             #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE) ** ** *
+            self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
                 if verbose:
@@ -109,18 +125,21 @@ class SoftmaxClassifier:
 
         return loss_history
 
+
     def evaluate(self, X, y):
         """
         Use the trained weights of this linear classifier to predict labels for
         data points and evaluate accuracy.
         Inputs:
         - X: A numpy array of shape (N, D) containing training data; there are N
-          training samples each of dimension D.
+        training samples each of dimension D.
         Returns:
         - y_predicted: Predicted labels for the data in X. y_predicted is a 1-dimensional
-          array of length N, and each element is an integer giving the predicted
-          class.
+        array of length N, and each element is an integer giving the predicted
+        class.
         """
+
+
         z = X @ self.W
         y_predicted = np.argmax(z, axis=1)
         accuracy = np.mean(y_predicted == y)
@@ -133,10 +152,10 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    learning_rate = 0
-    reg = 0
-    num_iters = 0
-    batch_size = 0
+    learning_rate = 1e-3
+    reg = 1e-4
+    num_iters = 10000
+    batch_size = 64
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
@@ -146,21 +165,21 @@ def train():
     t1 = datetime.datetime.now()
     dt = t1 - t0
 
-    report = f"""# Training Softmax classifier  
-datetime: {t1.isoformat(' ', 'seconds')}  
-Well done in: {dt.seconds} seconds  
-learning_rate = {learning_rate}  
-reg = {reg}  
-num_iters = {num_iters}  
-batch_size = {batch_size}  
+    report = f"""# Training Softmax classifier 
+datetime: {t1.isoformat(' ', 'seconds')} 
+Well done in: {dt.seconds} seconds 
+learning_rate = {learning_rate} 
+reg = {reg} 
+num_iters = {num_iters} 
+batch_size = {batch_size} 
 
-Final loss: {loss_history[-1]}   
-Train accuracy: {cls.evaluate(x_train, y_train)}   
-Test accuracy: {cls.evaluate(x_test, y_test)}  
-    
-<img src="weights.png">  
-<br>
-<img src="loss.png">
+Final loss: {loss_history[-1]} 
+Train accuracy: {cls.evaluate(x_train, y_train)} 
+Test accuracy: {cls.evaluate(x_test, y_test)} 
+
+<img src="weights.png"> 
+<br> 
+<img src="loss.png"> 
 """
 
     print(report)
@@ -175,3 +194,4 @@ Test accuracy: {cls.evaluate(x_test, y_test)}
 
 if __name__ == '__main__':
     train()
+
