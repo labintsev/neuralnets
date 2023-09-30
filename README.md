@@ -4,6 +4,7 @@
 Слайды к лекциям можно найти [здесь](https://drive.google.com/drive/folders/114QaNFTlvY3oXLmzqiGzE48MfpozMTCh?usp=drive_link).  
 Рекомендованый учебник по [гиту](https://git-scm.com/book/ru/v2).  
 Нерекомендованный учебник по [гиту](https://dangitgit.com/ru).  
+Учебник по машинному обучению от [ШАД](https://academy.yandex.ru/handbook/ml) раздел 5 и далее.  
 Результаты первого семинара [здесь](grads/scores.csv).  
 
 ## Начало работы
