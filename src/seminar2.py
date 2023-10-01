@@ -1,8 +1,7 @@
-# Seminar 2. Softmax classifier.
 import datetime
 import os.path
-
 import numpy as np
+import matplotlib.pyplot as plt
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 
@@ -13,7 +12,9 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    exp_Z = np.exp(Z - np.max(Z, axis=1, keepdims=True))
+    softmax_Z = exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
+    return softmax_Z
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -24,23 +25,34 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     :param W: classifier weights (D, C)
     :param X: input features (N, D)
     :param y: class labels (N, )
-    :param reg: regularisation strength
+    :param reg: regularization strength
     :return: loss, dW
     """
     loss = 0.0
     dL_dW = np.zeros_like(W)
-    # *****START OF YOUR CODE*****
+    num_train = X.shape[0]
+
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    scores = X.dot(W)
+    prob = softmax(scores)
+    correct_prob = prob[range(num_train), y]
+    data_loss = -np.log(correct_prob)
+    loss = np.sum(data_loss) / num_train
+
+    # Add regularization to the loss
+    reg_loss = 0.5 * reg * np.sum(W * W)
+    loss += reg_loss
 
     # 2. Backward pass, compute intermediate dL/dZ
+    dscores = prob
+    dscores[range(num_train), y] -= 1
+    dscores /= num_train
 
     # 3. Compute data gradient dL/dW
+    dL_dW = X.T.dot(dscores)
 
     # 4. Compute regularization gradient
-
-    # 5. Return loss and sum of data + reg gradients
-
-    # *****END OF YOUR CODE*****
+    dL_dW += reg * W
 
     return loss, dL_dW
 
@@ -49,8 +61,7 @@ class SoftmaxClassifier:
     def __init__(self):
         self.W = None
 
-    def train(self, X, y, learning_rate=1e-3, reg=1e-1, num_iters=10000,
-              batch_size=64, verbose=True):
+    def train(self, X, y, learning_rate=1e-3, reg=1e-1, num_iters=10000, batch_size=64, verbose=True):
         """
         Train classifier with stochastic gradient descent
         Inputs:
@@ -67,45 +78,30 @@ class SoftmaxClassifier:
         A list containing the value of the loss function at each training iteration.
         """
         num_train, dim = X.shape
-        num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is number of classes
+        num_classes = np.max(y) + 1
+
         if self.W is None:
-            # lazily initialize W
             self.W = 0.001 * np.random.randn(dim, num_classes)
 
-        # Run stochastic gradient descent to optimize W
         loss_history = []
+
         for it in range(num_iters):
             X_batch, y_batch = None, None
-            #########################################################################
-            # TODO 3:                                                               #
-            # Sample batch_size elements from the training data and their           #
-            # corresponding labels to use in this round of gradient descent.        #
-            # Store the data in X_batch and their corresponding labels in           #
-            # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
-            # and y_batch should have shape (batch_size,)                           #
-            #                                                                       #
-            # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
-            # replacement is faster than sampling without replacement.              #
-            #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            # Sample batch_size elements from the training data and their corresponding labels
+            batch_indices = np.random.choice(num_train, batch_size)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
 
-            # evaluate loss and gradient
+            # Evaluate loss and gradient
             loss, grad = softmax_loss_and_grad(self.W, X_batch, y_batch, reg)
             loss_history.append(loss)
 
-            # perform parameter update
-            #########################################################################
-            # TODO 4:                                                               #
-            # Update the weights using the gradient and the learning rate.          #
-            #########################################################################
-            # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            # Update the weights using the gradient and the learning rate
+            self.W -= learning_rate * grad
 
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            if it % 100 == 0:
-                if verbose:
-                    print(f'iteration {it} / {num_iters}: loss {loss:.3f} ')
+            if verbose and it % 100 == 0:
+                print(f'iteration {it} / {num_iters}: loss {loss:.3f} ')
 
         return loss_history
 
@@ -128,16 +124,11 @@ class SoftmaxClassifier:
 
 
 def train():
-    # TODO 5: Find the best hyperparameters
-    # assert test accuracy > 0.22
-    # weights images must look like in lecture slides
-
-    # ***** START OF YOUR CODE *****
-    learning_rate = 0
-    reg = 0
-    num_iters = 0
-    batch_size = 0
-    # ******* END OF YOUR CODE ************
+    # Hyperparameters
+    learning_rate = 1e-3
+    reg = 1e-1
+    num_iters = 10000
+    batch_size = 64
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
     cls = SoftmaxClassifier()
@@ -157,7 +148,7 @@ batch_size = {batch_size}
 Final loss: {loss_history[-1]}   
 Train accuracy: {cls.evaluate(x_train, y_train)}   
 Test accuracy: {cls.evaluate(x_test, y_test)}  
-    
+
 <img src="weights.png">  
 <br>
 <img src="loss.png">
@@ -175,3 +166,5 @@ Test accuracy: {cls.evaluate(x_test, y_test)}
 
 if __name__ == '__main__':
     train()
+
+
