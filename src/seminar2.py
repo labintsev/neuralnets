@@ -13,7 +13,8 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    S = (np.exp(Z)/np.exp(Z).sum(axis = 1).reshape(-1,1))
+    return S
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -31,13 +32,19 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-
+    N, D = X.shape
+    z = X @ W
+    s = softmax(z)
     # 2. Backward pass, compute intermediate dL/dZ
-
+    loss += -np.log(s[range(len(x)), y]).mean()
+    loss += reg * np.sum(W * W)
     # 3. Compute data gradient dL/dW
-
+    dLdz = s.copy()
+    dLdz[range(N), y] -= 1
     # 4. Compute regularization gradient
-
+    dL_dW += X.T @ dLdz
+    dL_dW /= N
+    dL_dW += reg * 2 * W
     # 5. Return loss and sum of data + reg gradients
 
     # *****END OF YOUR CODE*****
@@ -88,9 +95,10 @@ class SoftmaxClassifier:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            batch_idx = np.random.choice(num_train, batch_size)
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            X_batch = X[batch_idx]
+            Y_batch = y[batch_idx]
             # evaluate loss and gradient
             loss, grad = softmax_loss_and_grad(self.W, X_batch, y_batch, reg)
             loss_history.append(loss)
