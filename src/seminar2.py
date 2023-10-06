@@ -13,12 +13,12 @@ def softmax(X: np.array) -> np.array:
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return X
+    exp_X = np.exp(X - np.max(X, axis=-1, keepdims=True))  # Subtracting max for numerical stability
+    return exp_X / np.sum(exp_X, axis=-1, keepdims=True)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
     """
-    TODO 2:
     Compute softmax classifier loss and gradient dL/dW
     Do not forget about regularization!
     :param W: classifier weights (D, C)
@@ -31,14 +31,27 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     dL_dW = np.zeros_like(W)
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    N = X.shape[0]
+    scores = np.dot(X, W)  # (N, C)
+    exp_scores = np.exp(scores - np.max(scores, axis=1, keepdims=True))  # Subtracting max for numerical stability
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # (N, C)
+    correct_probs = -np.log(probs[np.arange(N), y])  # Loss for correct class
+    data_loss = np.sum(correct_probs) / N
+
+    reg_loss = 0.5 * reg * np.sum(W ** 2)  # Regularization loss
+
+    loss = data_loss + reg_loss
 
     # 2. Backward pass, compute intermediate dL/dZ
+    dscores = probs.copy()
+    dscores[np.arange(N), y] -= 1
+    dscores /= N
 
     # 3. Compute data gradient dL/dW
+    dL_dW = np.dot(X.T, dscores)
 
     # 4. Compute regularization gradient
-
-    # 5. Return loss and sum of data + reg gradients
+    dL_dW += reg * W
 
     # *****END OF YOUR CODE*****
 
@@ -83,7 +96,10 @@ class SoftmaxClassifier:
             # Store the data in X_batch and their corresponding labels in           #
             # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
             # and y_batch should have shape (batch_size,)                           #
-            #                                                                       #
+            batch_indices = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
+            #
             # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
             # replacement is faster than sampling without replacement.              #
             #########################################################################
@@ -101,7 +117,7 @@ class SoftmaxClassifier:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            self.W -= learning_rate * grad
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
                 if verbose:
