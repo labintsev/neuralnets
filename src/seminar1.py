@@ -21,6 +21,7 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
+    
     return np.repeat(np.array([a]), n, axis=0)
 
 
@@ -31,6 +32,7 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
+
     a *= np.dot((a + b), -0.5 * a)
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
@@ -49,6 +51,7 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
+
     return np.array([a[i][indices[i]] for i in range(len(indices))])
 
 
@@ -59,4 +62,5 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
+
     return np.array([[np.dot(a[i], a[j]) for i in range(len(a))] for j in range(len(a))])
