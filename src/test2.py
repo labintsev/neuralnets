@@ -7,6 +7,7 @@ from test_utils import *
 from seminar2 import *
 
 
+
 class TestSoftmax(unittest.TestCase):
     """1 point"""
     def testSoftmax5(self):

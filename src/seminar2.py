@@ -97,8 +97,7 @@ class SoftmaxClassifier:
             # y_batch; after sampling X_batch should have shape (batch_size, dim)   #
             # and y_batch should have shape (batch_size,)                           #
             batch_indices = np.random.choice(num_train, batch_size, replace=True)
-            X_batch = X[batch_indices]
-            y_batch = y[batch_indices]
+            X_batch, y_batch = X[batch_indices, :], y[batch_indices]
             #
             # Hint: Use np.random.choice to generate batch_indices. Sampling with   #
             # replacement is faster than sampling without replacement.              #
@@ -149,10 +148,10 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    learning_rate = 0
+    learning_rate = 0.001
     reg = 0
-    num_iters = 0
-    batch_size = 0
+    num_iters = 10000
+    batch_size = 32
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
