@@ -50,6 +50,8 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
 
 def get_preprocessed_data(include_bias=True):
     import tensorflow as tf
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
     y_train = y_train.ravel()
     y_test = y_test.ravel()

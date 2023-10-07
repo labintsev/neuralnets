@@ -37,7 +37,7 @@ def softmax_with_cross_entropy(Z, y):
 
 
 def l2_regularization(W, reg_strength):
-    loss = 0.5 * reg_strength * np.sum(W*W)
+    loss = 0.5 * reg_strength * np.sum(W * W)
     grad = np.dot(W, reg_strength)
     return loss, grad
 
@@ -54,7 +54,8 @@ class ReLULayer:
         :param X: input data
         :return: Rectified Linear Unit
         """
-        raise Exception("Not implemented!")
+        self.mask = X > 0
+        return self.mask * X
 
     def backward(self, d_out: np.array) -> np.array:
         """
@@ -66,7 +67,7 @@ class ReLULayer:
           with respect to input
         """
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        return self.mask * d_out
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
@@ -82,7 +83,9 @@ class DenseLayer:
     def forward(self, X):
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        z = X @ self.W.value + self.B.value
+        self.X = X.copy()
+        return z
 
     def backward(self, d_out):
         """
@@ -106,7 +109,12 @@ class DenseLayer:
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
         # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
+        batch_size, n_output = d_out.shape
+        self.W.grad = self.X.T @ d_out
+        self.B.grad = np.ones((1, batch_size)) @ d_out  # (1, batch_size) @ (batch_size, n_out)
+        dL_dX = d_out @ self.W.value.T  # (batch_size, n_out) @ (n_in, n_out) (batch_size, n_input)
+        return dL_dX
+        # raise Exception("Not implemented!")
 
     def params(self):
         return {'W': self.W, 'B': self.B}
@@ -146,8 +154,9 @@ class TwoLayerNet:
         # Set layer parameters gradient to zeros
         # After that compute loss and gradients
         for layer in self.layers:
+            Z = layer.forward(Z)
             for param in layer.params().values():
-                pass
+                param.grad = np.zeros_like(param.grad)
 
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
         return Z
@@ -157,11 +166,13 @@ class TwoLayerNet:
         # implement l2 regularization on all params
         # Hint: self.params() is useful again!
 
-        tmp_d_out = self.d_out
+        tmp_d_out = self.d_out  # dL_dZ
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
             for param in layer.params().values():
-                pass
+                reg_loss, reg_grad = l2_regularization(param.value, self.reg)
+                self.loss += reg_loss
+                param.grad += reg_grad
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):
