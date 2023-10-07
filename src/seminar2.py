@@ -13,7 +13,7 @@ def softmax(Z: np.array) -> np.array:
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    return np.exp(Z)/np.sum(np.exp(Z), axis=-1, keepdims=True)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -41,7 +41,28 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     # 5. Return loss and sum of data + reg gradients
 
     # *****END OF YOUR CODE*****
+    N = X.shape[0]
+    D = X.shape[1]
+    C = W.shape[1]
 
+    scores = np.dot(X, W)
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+
+    data_loss = -np.log(probs[range(N), y])
+    data_loss = np.sum(data_loss) / N
+
+    reg_loss = reg * np.sum(W ** 2)
+
+    loss = data_loss + reg_loss
+
+    dL_dZ = probs
+    dL_dZ[range(N), y] -= 1
+    dL_dZ /= N
+
+    dL_dW = np.dot(X.T, dL_dZ)
+
+    dL_dW += 2 * reg * W
     return loss, dL_dW
 
 
@@ -88,7 +109,9 @@ class SoftmaxClassifier:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+            indice = np.random.choice(X.shape[0], batch_size)
+            X_batch = X[indice]
+            y_batch = y[indice]
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             # evaluate loss and gradient
@@ -101,6 +124,7 @@ class SoftmaxClassifier:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            self.W -= learning_rate * grad
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
@@ -133,10 +157,10 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    learning_rate = 0
+    learning_rate = 0.01
     reg = 0
-    num_iters = 0
-    batch_size = 0
+    num_iters = 1000
+    batch_size = 10
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
