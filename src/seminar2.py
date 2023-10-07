@@ -7,13 +7,15 @@ from src.test_utils import get_preprocessed_data, visualize_weights, visualize_l
 
 
 def softmax(X: np.array) -> np.array:
+    exp_X = np.exp(X - np.max(X, axis=-1, keepdims=True))
+    softmax_X = exp_X / np.sum(exp_X, axis=-1, keepdims=True)
+    return softmax_X
     """
     TODO 1:
     Compute softmax of 2D array along axis -1
     :param X: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return X
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -29,14 +31,28 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     """
     loss = 0.0
     dL_dW = np.zeros_like(W)
+    num_samples = X.shape[0]
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    scores = np.dot(X, W)  # Shape: (N, C)
+    scores -= np.max(scores, axis=1, keepdims=True)  # For numerical stability
+    exp_scores = np.exp(scores)
+    probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)  # Shape: (N, C)
+    correct_logprobs = -np.log(probs[np.arange(num_samples), y])
+    data_loss = np.sum(correct_logprobs) / num_samples
+    reg_loss = 0.5 * reg * np.sum(W * W)
+    loss = data_loss + reg_loss
 
     # 2. Backward pass, compute intermediate dL/dZ
+    dscores = probs.copy()
+    dscores[np.arange(num_samples), y] -= 1
+    dscores /= num_samples
 
     # 3. Compute data gradient dL/dW
+    dL_dW = np.dot(X.T, dscores)
 
     # 4. Compute regularization gradient
+    dL_dW += reg * W
 
     # 5. Return loss and sum of data + reg gradients
 
@@ -67,7 +83,7 @@ class SoftmaxClassifier:
         A list containing the value of the loss function at each training iteration.
         """
         num_train, dim = X.shape
-        num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is number of classes
+        num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is the number of classes
         if self.W is None:
             # lazily initialize W
             self.W = 0.001 * np.random.randn(dim, num_classes)
@@ -76,6 +92,7 @@ class SoftmaxClassifier:
         loss_history = []
         for it in range(num_iters):
             X_batch, y_batch = None, None
+
             #########################################################################
             # TODO 3:                                                               #
             # Sample batch_size elements from the training data and their           #
@@ -88,6 +105,9 @@ class SoftmaxClassifier:
             # replacement is faster than sampling without replacement.              #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            batch_indices = np.random.choice(num_train, batch_size, replace=True)
+            X_batch = X[batch_indices]
+            y_batch = y[batch_indices]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -101,6 +121,7 @@ class SoftmaxClassifier:
             # Update the weights using the gradient and the learning rate.          #
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            self.W -= learning_rate * grad
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             if it % 100 == 0:
@@ -133,10 +154,10 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    learning_rate = 0
-    reg = 0
-    num_iters = 0
-    batch_size = 0
+    learning_rate = 1e-3  # You can start with a small learning rate
+    reg = 1e-4  # You can start with a small regularization strength
+    num_iters = 1000  # You can start with a small number of iterations
+    batch_size = 64  # You can start with a small batch size
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
