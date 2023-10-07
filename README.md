@@ -83,6 +83,6 @@ python -m unittest discover -v -s src
 
 ### Семинар 3. 
 Для тех, у кого загрузка данных Cifar10 падает с ошибкой сертификата SSL:  
-1. Скачать архив вручную [отсюда](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) 
+1. Скачать архив вручную [toronto](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) или [y-cloud](https://storage.yandexcloud.net/fa-bucket/cifar-10-python.tar.gz)  
 2. Положить в папку `data` в корне проекта.
 3. Указать аргумент в методе `test_utils.get_preprocessed_data(local_data=True)`
