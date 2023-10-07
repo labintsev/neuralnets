@@ -5,26 +5,23 @@ import numpy as np
 
 
 def random_matrix(n: int) -> np.array:
-    random_values = np.random.uniform(low=0, high=255, size=(n, n, 3))
-    random_m = random_values.astype(np.uint8)
     """
     Make (n x n x 3) matrix with a random uniform distribution [0, 255]
     array type must be uint8
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    return random_m
+    return np.array(0, 255, size=(n, n, 3), dtype=np.uint8)
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
-    matrix_2D = np.repeat(a[None, :], n, axis=0)
     """
     Broadcast 1D array to 2D matrix by repeating it n times
     :param a: 1D numpy array
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return matrix_2D
+    return np.ones(n)
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
@@ -34,8 +31,10 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
-    t = ((a + b) * (-a / 2))
-    a[...] = t[...]
+    a += b
+    a *= -1
+    a /= 2
+
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
     """
@@ -53,7 +52,7 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return a[np.arange(0, a.shape[0]), indices]
+    return a
 
 
 def self_inners(a: np.array) -> np.array:
@@ -63,4 +62,4 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-    return a @ a.T
+    return a
