@@ -81,3 +81,8 @@ python -m unittest discover -v -s src
 7. Рекуррентные сети
 8. Обработка текстов NLP
 
+### Семинар 3. 
+Для тех, у кого загрузка данных Cifar10 падает с ошибкой сертификата SSL:  
+1. Скачать архив вручную [отсюда](https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz) 
+2. Положить в папку `data` в корне проекта.
+3. Указать аргумент в методе `test_utils.get_preprocessed_data(local_data=True)`
