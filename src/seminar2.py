@@ -7,13 +7,15 @@ from src.test_utils import get_preprocessed_data, visualize_weights, visualize_l
 
 
 def softmax(Z: np.array) -> np.array:
+
     """
     TODO 1:
     Compute softmax of 2D array Z along axis -1
     :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
-    return Z
+    ex = np.exp(Z)
+    return ex / np.sum(ex, axis=-1, keepdims=True)
 
 
 def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> tuple:
@@ -27,10 +29,17 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     :param reg: regularisation strength
     :return: loss, dW
     """
-    loss = 0.0
-    dL_dW = np.zeros_like(W)
+    dL_dW = 0.0
+    n_samples = X.shape[0]
     # *****START OF YOUR CODE*****
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
+    scores = X.dot(W)
+
+    sm = softmax(scores)
+    err = -np.log(sm[np.arange(n_samples), y])
+    data_loss = np.sum(err) / n_samples
+    reg_loss = reg * np.sum(W ** 2)
+    loss = data_loss + reg_loss
 
     # 2. Backward pass, compute intermediate dL/dZ
 
@@ -39,10 +48,8 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     # 4. Compute regularization gradient
 
     # 5. Return loss and sum of data + reg gradients
-
-    # *****END OF YOUR CODE*****
-
     return loss, dL_dW
+    # *****END OF YOUR CODE*****
 
 
 class SoftmaxClassifier:
