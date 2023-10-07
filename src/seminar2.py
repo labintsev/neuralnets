@@ -3,7 +3,7 @@ import datetime
 import os.path
 
 import numpy as np
-from test_utils import get_preprocessed_data, visualize_weights
+from test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 def softmax(Z: np.array) -> np.array:
     """
     TODO 1:
