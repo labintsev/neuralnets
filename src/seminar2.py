@@ -1,9 +1,10 @@
 # Seminar 2. Softmax classifier.
-import datetime
-import os.path
 
+import os.path
 import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
+import datetime
+import os.path
 
 
 def softmax(Z: np.array) -> np.array:
@@ -14,7 +15,7 @@ def softmax(Z: np.array) -> np.array:
     :return: softmax 2D array, shape (N, C)
     """
     exps = np.exp(Z)
-    summ_exps = np.sum(exps, axis = -1, keepdims = True)
+    summ_exps = np.sum(exps, axis=1, keepdims=True)
     return exps / summ_exps
 
 
@@ -29,35 +30,25 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
     :param reg: regularisation strength
     :return: loss, dW
     """
-    loss = 0.0
-    dL_dW = np.zeros_like(W)
 
+    N = X.shape[0]
+    Z = X @ W # scores
     # 1. Forward pass, compute loss as sum of data loss and regularization loss [sum(W ** 2)]
-    scores = np.dot(X, W)
-    exp_scores = np.exp(scores)
-    probs = exp_scores / np.sum(exp_scores, axis = 1, keepdims = True)
-
-    # 2. Backward pass, compute intermediate dL/dZ
-    dscores = probs
-    num_examples = X.shape[0]
-    dscores[np.arange(num_examples), y] -= 1
-    dscores /= num_examples
-
-    # 3. Compute data gradient dL/dW
-    correct_probs = probs[np.arange(num_examples), y]
-    data_loss = -np.log(correct_probs)
-    loss = np.sum(data_loss) / num_examples
-
-    # 4. Compute regularization gradient
+    exp_Z = np.exp(Z)
+    softmax_probs = exp_Z / np.sum(exp_Z, axis=1, keepdims=True)
+    loss = np.sum(-np.log(softmax_probs[np.arange(N), y])) / N
     reg_loss = 0.5 * reg * np.sum(W ** 2)
     loss += reg_loss
 
-    # 5. Return loss and sum of data + reg gradients
-    dL_dW = np.dot(X.T, dscores)
-    dL_dW += reg * W
+    dL_dZ = softmax_probs.copy()
+    dL_dZ[np.arange(N), y] -= 1
+    dL_dZ /= N
+
+    dL_dW = X.T @ dL_dZ
+    dR_dW = reg * W
+    dL_dW += dR_dW
 
     return loss, dL_dW
-
 
 class SoftmaxClassifier:
     def __init__(self):
