@@ -45,7 +45,6 @@ def l2_regularization(W, reg_strength):
 class ReLULayer:
     def __init__(self):
         self.mask = None
-        self.forward_cache = None
 
     def forward(self, X: np.array) -> np.array:
         """
