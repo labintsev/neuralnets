@@ -290,7 +290,6 @@ def train_2layer():
 
     print(report)
 
-
     with open('seminar3/report.md', 'w') as f:
         f.write(report)
     visualize_loss(loss_history, 'seminar3')
