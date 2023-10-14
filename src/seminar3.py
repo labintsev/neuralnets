@@ -290,9 +290,9 @@ def train_2layer():
 
     print(report)
 
-    out_dir = '..\\output\\seminar3'
-    print(os.path.join(out_dir, 'report.md'))
+    out_dir = '/output/seminar3'
     report_path = os.path.join(out_dir, 'report.md')
+    print(report_path)
     with open(report_path, 'w') as f:
         f.write(report)
     visualize_loss(loss_history, out_dir)
