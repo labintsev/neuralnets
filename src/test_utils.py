@@ -2,7 +2,7 @@
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
-
+from load_data import load_local_data
 
 def check_gradient(f, x, delta=1e-5, tol=1e-4):
     """
@@ -48,9 +48,14 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
     return True
 
 
-def get_preprocessed_data():
-    import tensorflow as tf
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+def get_preprocessed_data(include_bias=True, local_data=False):
+
+    if local_data:
+        (x_train, y_train), (x_test, y_test) = load_local_data()
+    else:
+        import tensorflow as tf
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
     y_train = y_train.ravel()
     y_test = y_test.ravel()
 
@@ -63,11 +68,12 @@ def get_preprocessed_data():
     x_test -= mean_image
     x_test /= 128.0
 
-    # Stack X with dummy feature 1 allows does not care about adding bias.
-    # Now bias b is a part of a matrix W (D+1, C).
-    # x @ W + b  => x' @ W'
-    x_train = np.hstack([x_train, np.ones((x_train.shape[0], 1))])
-    x_test = np.hstack([x_test, np.ones((x_test.shape[0], 1))])
+    if include_bias:
+        # Stack X with dummy feature 1 allows does not care about adding bias.
+        # Now bias b is a part of a matrix W (D+1, C).
+        # x @ W + b  => x' @ W'
+        x_train = np.hstack([x_train, np.ones((x_train.shape[0], 1))])
+        x_test = np.hstack([x_test, np.ones((x_test.shape[0], 1))])
 
     return (x_train, y_train), (x_test, y_test)
 
@@ -138,20 +144,22 @@ def check_model_gradient(model, X, y,
     Returns:
       bool indicating whether gradients match or not
     """
-    params = model.params()
+    for layer in model.layers:
+        params = layer.params()
+        for param_key in params:
+            print("Checking gradient for %s" % param_key)
+            param = params[param_key]
+            initial_w = param.value
 
-    for param_key in params:
-        print("Checking gradient for %s" % param_key)
-        param = params[param_key]
-        initial_w = param.value
+            def helper_func(w):
+                param.value = w
+                model.forward(X, y)
+                model.backward()
+                loss = model.loss
+                grad = param.grad
+                return loss, grad
 
-        def helper_func(w):
-            param.value = w
-            loss = model.compute_loss_and_gradients(X, y)
-            grad = param.grad
-            return loss, grad
-
-        if not check_gradient(helper_func, initial_w, delta, tol):
-            return False
+            if not check_gradient(helper_func, initial_w, delta, tol):
+                return False
 
     return True
