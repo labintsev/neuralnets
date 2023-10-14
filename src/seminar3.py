@@ -290,12 +290,10 @@ def train_2layer():
 
     print(report)
 
-    out_dir = '/output/seminar3'
-    report_path = os.path.join(out_dir, 'report.md')
-    print(report_path)
-    with open(report_path, 'w') as f:
+
+    with open('seminar3/report.md', 'w') as f:
         f.write(report)
-    visualize_loss(loss_history, out_dir)
+    visualize_loss(loss_history, 'seminar3')
 
 if __name__ == '__main__':
     train_2layer()
