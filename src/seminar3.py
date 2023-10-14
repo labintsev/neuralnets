@@ -255,14 +255,14 @@ class TwoLayerNet:
 
 def train_2layer():
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
-    hidden_layer_size = 64
+    hidden_layer_size = 32
     n_input = x_train.shape[1]
     n_output = 10
 
     reg = 0.1
-    learning_rate = 1e-3
-    num_iters = 5000
-    batch_size = 128
+    learning_rate = 1e-2
+    num_iters = 10**3
+    batch_size = 64
 
     model = TwoLayerNet(n_input, n_output, hidden_layer_size, reg)
 
@@ -290,7 +290,8 @@ def train_2layer():
 
     print(report)
 
-    out_dir = '../output/seminar3'
+    out_dir = '..\\output\\seminar3'
+    print(os.path.join(out_dir, 'report.md'))
     report_path = os.path.join(out_dir, 'report.md')
     with open(report_path, 'w') as f:
         f.write(report)
