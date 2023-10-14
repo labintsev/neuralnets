@@ -2,7 +2,7 @@
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
-
+from load_data import load_local_data
 
 def check_gradient(f, x, delta=1e-5, tol=1e-4):
     """
@@ -48,9 +48,14 @@ def check_gradient(f, x, delta=1e-5, tol=1e-4):
     return True
 
 
-def get_preprocessed_data(include_bias=True):
-    import tensorflow as tf
-    (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+def get_preprocessed_data(include_bias=True, local_data=False):
+
+    if local_data:
+        (x_train, y_train), (x_test, y_test) = load_local_data()
+    else:
+        import tensorflow as tf
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
     y_train = y_train.ravel()
     y_test = y_test.ravel()
 
