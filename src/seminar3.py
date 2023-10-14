@@ -58,8 +58,8 @@ class ReLULayer:
         :return: Rectified Linear Unit
         """
         # raise Exception("Not implemented!")
-        FP = np.where(X > 0, ..., ...)
-
+        self.mask = (X > 0)
+        FP = np.where(X > 0, X, 0)
         return FP
 
     def backward(self, d_out: np.array) -> np.array:
@@ -72,7 +72,9 @@ class ReLULayer:
           with respect to input
         """
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        BW = d_out * self.mask
+        return BW
+        # raise Exception("Not implemented!")
 
 
 
@@ -90,6 +92,7 @@ class DenseLayer:
     def forward(self, X):
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
+        self.X = X.copy()
         out = X @ self.W.value + self.B.value
         return out
         # raise Exception("Not implemented!")
@@ -119,12 +122,14 @@ class DenseLayer:
         N = d_out.shape[0]
 
         # d_out.shape = (N, n_out); dB.shape = (1, n_out)
-        self.B.grad = np.ones(1, N) @ d_out
-        self.W.grad = ...
-        d_result = d_out @ self.W.value
+        # self.B.grad = np.full(fill_value=1, shape=N) @ d_out
+        self.B.grad += np.sum(d_out, axis=0, keepdims=True)
+        self.W.grad += self.X.T @ d_out
 
-        print('d_out shape is ', d_out.shape)
-        print('self.W shape is ', self.W.value.shape)
+        d_result = d_out @ self.W.value.T
+
+        # print('d_out shape is ', d_out.shape)
+        # print('self.W shape is ', self.W.value.shape)
 
         return d_result
         # raise Exception("Not implemented!")
@@ -168,9 +173,8 @@ class TwoLayerNet:
         # After that compute loss and gradients
         for layer in self.layers:
             Z = layer.forward(Z)
-            param_dict = layer.params()
-            for param in param_dict.values():
-                param.grad - np.zeros_like(param.grad)
+            for param in layer.params().values():
+                param.grad = np.zeros_like(param.grad)
 
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
         return Z
@@ -233,4 +237,4 @@ if __name__ == '__main__':
     """1 point"""
     # Train your TwoLayer Net!
     # Save report to output/seminar3
-    model = TwoLayerNet()
+    # model = TwoLayerNet()
