@@ -294,7 +294,6 @@ def train_2layer():
         f.write(report)
     visualize_loss(loss_history, 'seminar3')
 
-
 if __name__ == '__main__':
     train_2layer()
     """1 point"""
