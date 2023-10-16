@@ -5,6 +5,8 @@ import numpy as np
 
 
 def random_matrix(n: int) -> np.array:
+
+
     random_values = np.random.uniform(low=0, high=255, size=(n, n, 3))
     random_m = random_values.astype(np.uint8)
     return random_m
