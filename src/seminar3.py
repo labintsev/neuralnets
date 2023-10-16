@@ -54,9 +54,12 @@ class ReLULayer:
         :param X: input data
         :return: Rectified Linear Unit
         """
-        raise Exception("Not implemented!")
+        self.mask= X>0
+        return self.mask*X
+        # raise Exception("Not implemented!")
 
     def backward(self, d_out: np.array) -> np.array:
+        return d_out * self.mask
         """
         Backward pass
         :param d_out, np array (batch_size, num_features) - gradient
@@ -66,7 +69,7 @@ class ReLULayer:
           with respect to input
         """
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        # raise Exception("Not implemented!")
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
@@ -80,11 +83,18 @@ class DenseLayer:
         self.X = None
 
     def forward(self, X):
+        self.X = X
+        return np.dot(X, self.W.value) + self.B.value
+
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        # raise Exception("Not implemented!")
 
     def backward(self, d_out):
+        self.W.grad = np.dot(self.X.T, d_out)
+        self.B.grad = np.sum(d_out, axis=0, keepdims=True)
+        d_result = np.dot(d_out, self.W.value.T)
+        return d_result
         """
         Backward pass
         Computes gradient with respect to input and
@@ -106,7 +116,7 @@ class DenseLayer:
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
         # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
+        # raise Exception("Not implemented!")
 
     def params(self):
         return {'W': self.W, 'B': self.B}
@@ -161,7 +171,8 @@ class TwoLayerNet:
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
             for param in layer.params().values():
-                pass
+                param.grad += self.reg * param.value
+
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):
@@ -208,4 +219,21 @@ if __name__ == '__main__':
     """1 point"""
     # Train your TwoLayer Net!
     # Save report to output/seminar3
-    model = TwoLayerNet()
+    # model = TwoLayerNet()
+    input_size = 10
+    hidden_layer_size = 20
+    output_size = 5
+    model = TwoLayerNet(input_size, output_size, hidden_layer_size, reg=0.1)
+
+    # Generate some example data (replace this with your own dataset)
+    num_samples = 100
+    X = np.random.rand(num_samples, input_size)
+    y = np.random.randint(output_size, size=num_samples)
+
+    # Train the model
+    loss_history = model.fit(X, y, learning_rate=0.1, num_iters=1000, batch_size=16)
+
+    # You can now use the trained model for predictions or further analysis
+
+
+
