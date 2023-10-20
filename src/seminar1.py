@@ -31,6 +31,7 @@ def inplace_operation(a: np.array, b: np.array) -> None:
     :param b: matrix B
     :return: None
     """
+
     a += b
     a *= -0.5
 
