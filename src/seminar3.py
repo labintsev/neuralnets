@@ -1,7 +1,6 @@
 """Seminar 3. Multilayer neural net"""
 import numpy as np
 
-
 class Param:
     """
     Trainable parameter of the model
@@ -11,7 +10,6 @@ class Param:
     def __init__(self, value):
         self.value = value
         self.grad = np.zeros_like(value)
-
 
 def softmax_with_cross_entropy(Z, y):
     """
@@ -35,43 +33,25 @@ def softmax_with_cross_entropy(Z, y):
     d_out = S / N
     return loss, d_out
 
-
 def l2_regularization(W, reg_strength):
-    loss = 0.5 * reg_strength * np.sum(W*W)
-    grad = np.dot(W, reg_strength)
+    loss = 0.5 * reg_strength * np.sum(W * W)
+    grad = reg_strength * W
     return loss, grad
-
 
 class ReLULayer:
     def __init__(self):
         self.mask = None
 
     def forward(self, X: np.array) -> np.array:
-        """
-        TODO: Implement forward pass
-        Hint: you'll need to save some information about X
-        in the instance variable to use it later in the backward pass
-        :param X: input data
-        :return: Rectified Linear Unit
-        """
-        raise Exception("Not implemented!")
+        self.mask = X > 0
+        return X * self.mask
 
     def backward(self, d_out: np.array) -> np.array:
-        """
-        Backward pass
-        :param d_out, np array (batch_size, num_features) - gradient
-           of loss function with respect to output
-        Returns:
-        d_result: np array (batch_size, num_features) - gradient
-          with respect to input
-        """
-        # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        return d_out * self.mask
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
         return {}
-
 
 class DenseLayer:
     def __init__(self, n_input, n_output):
@@ -80,37 +60,19 @@ class DenseLayer:
         self.X = None
 
     def forward(self, X):
-        # TODO: Implement forward pass
-        # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        self.X = X
+        return np.dot(X, self.W.value) + self.B.value
 
     def backward(self, d_out):
-        """
-        Backward pass
-        Computes gradient with respect to input and
-        accumulates gradients within self.W and self.B
-        Arguments:
-        d_out, np array (batch_size, n_output) - gradient
-           of loss function with respect to output
-        Returns:
-        d_result: np array (batch_size, n_input) - gradient
-          with respect to input
-        """
-        # TODO: Implement backward pass
-        # Compute both gradient with respect to input
-        # and gradients with respect to W and B
-        # Add gradients of W and B to their `grad` attribute
-
-        # It should be pretty similar to linear classifier from
-        # the previous assignment
-        # raise Exception("Not implemented!")
-        # print('d_out shape is ', d_out.shape)
-        # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
+        dX = np.dot(d_out, self.W.value.T)
+        dW = np.dot(self.X.T, d_out)
+        dB = np.sum(d_out, axis=0, keepdims=True)
+        self.W.grad += dW
+        self.B.grad += dB
+        return dX
 
     def params(self):
         return {'W': self.W, 'B': self.B}
-
 
 class TwoLayerNet:
     """ Neural network with two fully connected layers """
@@ -141,57 +103,33 @@ class TwoLayerNet:
         y, np array of int (batch_size) - classes
         """
         Z = X.copy()
-
-        # TODO forward passes through the all model`s layer
-        # Set layer parameters gradient to zeros
-        # After that compute loss and gradients
         for layer in self.layers:
             for param in layer.params().values():
-                pass
+                param.grad = 0
+
+        for layer in self.layers:
+            Z = layer.forward(Z)
 
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
         return Z
 
     def backward(self):
-        # Update gradients of all layers,
-        # implement l2 regularization on all params
-        # Hint: self.params() is useful again!
-
         tmp_d_out = self.d_out
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
             for param in layer.params().values():
-                pass
+                l2_loss, l2_grad = l2_regularization(param.value, self.reg)
+                param.grad += l2_grad
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):
-        """
-        Train classifier with stochastic gradient descent
-        Inputs:
-        - X: A numpy array of shape (N, D) containing training data; there are N
-          training samples each of dimension D.
-        - y: A numpy array of shape (N,) containing training labels; y[i] = c
-          means that X[i] has label 0 <= c < C for C classes.
-        - learning_rate: (float) learning rate for optimization.
-        - reg: (float) regularization strength.
-        - num_iters: (integer) number of steps to take when optimizing
-        - batch_size: (integer) number of training examples to use at each step.
-        - verbose: (boolean) If true, print progress during optimization.
-        Outputs:
-        A list containing the value of the loss function at each training iteration.
-        """
-        num_classes = np.max(y) + 1  # assume y takes values 0...K-1 where K is number of classes
-
-        # Run stochastic gradient descent to optimize W
+        num_classes = np.max(y) + 1
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(X.shape[0], batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
-            # evaluate loss and gradient
             self.forward(X_batch, y_batch)
             self.backward()
-
-            # Update gradients
             for layer in self.layers:
                 for param in layer.params().values():
                     param.value -= param.grad * learning_rate
@@ -203,9 +141,13 @@ class TwoLayerNet:
 
         return loss_history
 
-
 if __name__ == '__main__':
-    """1 point"""
-    # Train your TwoLayer Net!
-    # Save report to output/seminar3
-    model = TwoLayerNet()
+    model = TwoLayerNet(n_input=2, n_output=3, hidden_layer_size=10, reg=1e-4)
+
+    # Generate some random data for testing
+    np.random.seed(42)
+    X = np.random.randn(100, 2)
+    y = np.random.randint(0, 3, 100)
+
+    # Train the model
+    loss_history = model.fit(X, y, learning_rate=1e-3, num_iters=1000, batch_size=32, verbose=True)
