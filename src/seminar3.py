@@ -199,7 +199,7 @@ class TwoLayerNet():
         # Run stochastic gradient descent to optimize W
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(len(X), batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
             # evaluate loss and gradient
             self.forward(X_batch, y_batch)
@@ -242,17 +242,17 @@ def train():
     # weights images must look like in lecture slides
 
     # ***** START OF YOUR CODE *****
-    n_input, n_output, hidden = 3072, 10, 512
-    learning_rate = 1e-4
-    reg = 1
-    num_iters = 1000
-    batch_size = 256
+    n_input, n_output, hidden = 3072, 10, 256
+    learning_rate = 1e-3
+    reg = 0.01
+    num_iters = 20000
+    batch_size = 64
     # ******* END OF YOUR CODE ************
 
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
-    cls = TwoLayerNet(hidden_layer_size=hidden, n_input=n_input, n_output=n_output)
+    cls = TwoLayerNet(hidden_layer_size=hidden, n_input=n_input, n_output=n_output, reg=reg)
     t0 = datetime.datetime.now()
-    loss_history = cls.fit(x_train, y_train, learning_rate, reg, num_iters, batch_size)
+    loss_history = cls.fit(x_train, y_train, learning_rate, num_iters, batch_size)
     t1 = datetime.datetime.now()
     dt = t1 - t0
 
