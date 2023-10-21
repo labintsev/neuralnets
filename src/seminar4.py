@@ -164,6 +164,7 @@ class NeuralNetwork:
                 param.grad = np.zeros_like(param.grad)
         return Z
 
+
     def compute_loss_and_gradient(self, x, y):
         self.loss, self.d_out = softmax_with_cross_entropy(x, y)
 
@@ -186,7 +187,7 @@ class NeuralNetwork:
         num_classes = np.max(y) + 1
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(len(X), batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
             # evaluate loss and gradient
             z = self.forward(X_batch)
@@ -237,9 +238,9 @@ def train_():
     n_output = 10
 
     reg = 0.5
-    learning_rate = 1e-4
-    num_iters = 5_000
-    batch_size = 16
+    learning_rate = 1e-3
+    num_iters = 3_000
+    batch_size = 128
 
     neural_net = NeuralNetwork([DenseLayer(n_input, hidden_layer_size),
                                 DropoutLayer(0.5),
