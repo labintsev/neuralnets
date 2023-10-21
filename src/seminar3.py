@@ -54,7 +54,8 @@ class ReLULayer:
         :param X: input data
         :return: Rectified Linear Unit
         """
-        raise Exception("Not implemented!")
+        self.mask = X > 0
+        return X * self.mask
 
     def backward(self, d_out: np.array) -> np.array:
         """
@@ -66,7 +67,8 @@ class ReLULayer:
           with respect to input
         """
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        d_result = d_out * self.mask
+        return d_result
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
@@ -82,7 +84,10 @@ class DenseLayer:
     def forward(self, X):
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        self.X = X
+        output = np.dot(X, self.W.value) + self.B.value
+        return output
+
 
     def backward(self, d_out):
         """
@@ -106,7 +111,15 @@ class DenseLayer:
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
         # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
+        d_input = np.dot(d_out, self.W.value.T)
+        d_W = np.dot(self.X.T, d_out)
+        d_B = np.sum(d_out, axis=0, keepdims=True)
+
+        # Accumulate gradients in the `grad` attribute
+        self.W.grad = d_W
+        self.B.grad = d_B
+
+        return d_input
 
     def params(self):
         return {'W': self.W, 'B': self.B}

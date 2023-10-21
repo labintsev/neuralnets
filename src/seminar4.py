@@ -34,7 +34,7 @@ class Optimizer(ABC):
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
         # TODO Update W with d_W
-        pass
+        w -= learning_rate * d_w
 
 
 class Momentum(Optimizer):
@@ -46,13 +46,17 @@ class Momentum(Optimizer):
         if self.velocity is None:
             self.velocity = np.zeros_like(d_w)
         # TODO Update W with d_W and velocity
+        self.velocity = self.rho * self.velocity + (1 - self.rho) * d_w * 2
+        w -= learning_rate * self.velocity
 
 
 class DropoutLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         if train:
             # TODO zero mask in random X position and scale remains
-            pass
+            self.mask = (np.random.rand(*x.shape) > self.p).astype(float)
+            self.scale = 1 / (1 - self.p)
+            return x * self.mask * self.scale
         else:
             return x
 
@@ -69,12 +73,14 @@ class DropoutLayer(Layer):
 
 
 class BatchNormLayer(Layer):
-    def __init__(self, dims: int) -> None:
+    def __init__(self, dims: int, epsilon=1e-5) -> None:
         self.gamma = Param(np.ones((1, dims), dtype="float32"))
         self.bias = Param(np.zeros((1, dims), dtype="float32"))
 
         self.running_mean_x = np.zeros(0)
         self.running_var_x = np.zeros(0)
+
+        self.epsilon = epsilon
 
         # forward params
         self.var_x = np.zeros(0)
@@ -103,10 +109,14 @@ class BatchNormLayer(Layer):
         self.num_examples = x.shape[0]
         if train:
             # TODO Compute mean_x and var_x
+            self.mean_x = np.mean(x, axis=0, keepdims=True)
+            self.var_x = np.var(x, axis=0, keepdims=True)
             self._update_running_variables()
         else:
             # TODO Copy mean_x and var_x from running variables
-            pass
+            self.mean_x = self.running_mean_x
+            self.stddev_x = np.sqrt(self.running_var_x + self.epsilon)
+            self.standard_x = (x - self.mean_x) / self.stddev_x
 
         self.var_x += epsilon
         self.stddev_x = np.sqrt(self.var_x)
