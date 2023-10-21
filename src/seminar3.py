@@ -54,19 +54,24 @@ class ReLULayer:
         :param X: input data
         :return: Rectified Linear Unit
         """
-        raise Exception("Not implemented!")
+        self.X = X  # Save input data for backward pass
+        return np.maximum(0, X)
 
     def backward(self, d_out: np.array) -> np.array:
         """
         Backward pass
         :param d_out, np array (batch_size, num_features) - gradient
-           of loss function with respect to output
+        of loss function with respect to output
         Returns:
-        d_result: np array (batch_size, num_features) - gradient
-          with respect to input
+        _result: np array (batch_size, num_features) - gradient
+        with respect to input
         """
+
         # TODO: Implement backward pass
-        raise Exception("Not implemented!")
+        d_result = d_out.copy()  # Copy gradient
+        # Calculate gradient
+        d_result[self.X < 0] = 0
+        return d_result
 
     def params(self) -> dict:
         # ReLU Doesn't have any parameters
@@ -82,7 +87,10 @@ class DenseLayer:
     def forward(self, X):
         # TODO: Implement forward pass
         # Your implementation shouldn't have any loops
-        raise Exception("Not implemented!")
+        self.X = X  # Save input data
+        result = np.maximum(X, 0)  # Apply ReLU function element-wise
+        return result
+
 
     def backward(self, d_out):
         """
@@ -106,7 +114,8 @@ class DenseLayer:
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
         # print('self.W shape is ', self.W.value.shape)
-        raise Exception("Not implemented!")
+        d_result = d_out * (self.X > 0)  # Compute gradient element-wise
+        return d_result
 
     def params(self):
         return {'W': self.W, 'B': self.B}
@@ -146,10 +155,18 @@ class TwoLayerNet:
         # Set layer parameters gradient to zeros
         # After that compute loss and gradients
         for layer in self.layers:
-            for param in layer.params().values():
-                pass
-
+            Z = layer.forward(Z)
+        # Compute loss and derivative with respect to output
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
+        # Backward pass through all model's layers in reverse order
+        for layer in reversed(self.layers):
+            self.d_out = layer.backward(self.d_out)
+
+            # Update parameter gradients
+            for param_name, param_value in layer.params().items():
+                if param_name.endswith('_grad'):
+                    param_value += layer.grads()[param_name]
+
         return Z
 
     def backward(self):
