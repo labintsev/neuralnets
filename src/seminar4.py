@@ -2,9 +2,11 @@
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
+import datetime
+import os.path
 
 from seminar3 import *
-from test_utils import get_preprocessed_data
+from test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 epsilon = 1e-3
 
@@ -211,10 +213,13 @@ class NeuralNetwork:
             for k, v in layer_params.items():
                 model_params[f'layer_{i}_{k}'] = v
         return model_params
+    
+def train():
+    learning_rate = 5e-3
+    reg = 0
+    num_iters = 1000
+    batch_size = 100
 
-
-if __name__ == '__main__':
-    """1 point"""
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
     # Train your neural net!
     n_input, n_output, n_hidden = 3072, 10, 256
@@ -223,3 +228,37 @@ if __name__ == '__main__':
                                 BatchNormLayer(n_hidden),
                                 ReLULayer(),
                                 DenseLayer(n_hidden, n_output)])
+    momentum = Momentum(0.9)
+    neural_net.setup_optimizer(momentum)
+    t0 = datetime.datetime.now()
+    loss_history = neural_net.fit(x_train, y_train, learning_rate, num_iters, batch_size, verbose=True)
+    t1 = datetime.datetime.now()
+    dt = t1 - t0
+
+    report = f"""# Training Softmax classifier  
+datetime: {t1.isoformat(' ', 'seconds')}  
+Well done in: {dt.seconds} seconds  
+learning_rate = {learning_rate}  
+reg = {reg}  
+num_iters = {num_iters}  
+batch_size = {batch_size}  
+
+Final loss: {loss_history[-1]}   
+    
+<img src="weights.png">  
+<br>
+<img src="loss.png">
+"""
+
+    print(report)
+
+    out_dir = 'output/seminar2'
+    report_path = os.path.join(out_dir, 'report.md')
+    with open(report_path, 'w') as f:
+        f.write(report)
+    visualize_loss(loss_history, out_dir)
+
+
+if __name__ == '__main__':
+    """1 point"""
+    train()
