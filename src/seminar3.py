@@ -196,7 +196,7 @@ class TwoLayerNet:
         # Run stochastic gradient descent to optimize W
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(len(X), batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
             # evaluate loss and gradient
             self.forward(X_batch, y_batch)
