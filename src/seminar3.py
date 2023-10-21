@@ -7,7 +7,6 @@ class Param:
     Trainable parameter of the model
     Captures both parameter value and the gradient
     """
-
     def __init__(self, value):
         self.value = value
         self.grad = np.zeros_like(value)
@@ -82,6 +81,7 @@ class DenseLayer:
         self.B = Param(0.001 * np.random.randn(1, n_output))
         self.X = None
 
+
     def forward(self, X):
         self.X = X
         return np.dot(X, self.W.value) + self.B.value
@@ -91,10 +91,15 @@ class DenseLayer:
         # raise Exception("Not implemented!")
 
     def backward(self, d_out):
-        self.W.grad = np.dot(self.X.T, d_out)
-        self.B.grad = np.sum(d_out, axis=0, keepdims=True)
-        d_result = np.dot(d_out, self.W.value.T)
-        return d_result
+        d_input = np.dot(d_out, self.W.value.T)
+        self.W.grad += np.dot(self.X.T, d_out)
+        self.B.grad += np.sum(d_out, axis=0)
+        return d_input
+
+        # self.W.grad = np.dot(self.X.T, d_out)
+        # self.B.grad = np.sum(d_out, axis=0, keepdims=True)
+        # d_result = np.dot(d_out, self.W.value.T)
+        # return d_result
         """
         Backward pass
         Computes gradient with respect to input and
