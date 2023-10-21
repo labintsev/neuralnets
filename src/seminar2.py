@@ -67,7 +67,7 @@ def softmax_loss_and_grad(W: np.array, X: np.array, y: np.array, reg: float) -> 
 
     dL_dW = np.dot(X.T, dscores)
 
-    dL_dW += reg * W
+    dL_dW += reg * W * 2
 
     return loss, dL_dW
 
