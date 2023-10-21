@@ -34,7 +34,8 @@ class Optimizer(ABC):
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
         # TODO Update W with d_W
-        pass
+        w -= d_w * learning_rate
+        # pass
 
 
 class Momentum(Optimizer):
@@ -46,13 +47,19 @@ class Momentum(Optimizer):
         if self.velocity is None:
             self.velocity = np.zeros_like(d_w)
         # TODO Update W with d_W and velocity
+        new_velocity = self.rho * self.velocity + d_w
+        w -= new_velocity * learning_rate
+        self.velocity = new_velocity
 
 
 class DropoutLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         if train:
             # TODO zero mask in random X position and scale remains
-            pass
+            # pass
+            self.mask = np.random.random(size=x.shape) > self.p
+            self.scale = 1 / (1 - self.p)
+            return x * self.scale * self.mask
         else:
             return x
 
@@ -103,9 +110,13 @@ class BatchNormLayer(Layer):
         self.num_examples = x.shape[0]
         if train:
             # TODO Compute mean_x and var_x
+            self.mean_x = np.mean(x, axis=0, keepdims=True)
+            self.var_x = np.var(x, axis=0, keepdims=True)
             self._update_running_variables()
         else:
             # TODO Copy mean_x and var_x from running variables
+            self.mean_x = self.running_mean_x
+            self.var_x = self.running_var_x
             pass
 
         self.var_x += epsilon
@@ -202,14 +213,71 @@ class NeuralNetwork:
                 model_params[f'layer_{i}_{k}'] = v
         return model_params
 
+    def evaluate(self, X, y):
+        """
+        Use the trained weights of this linear classifier to predict labels for
+        data points and evaluate accuracy.
+        Inputs:
+        - X: A numpy array of shape (N, D) containing training data; there are N
+          training samples each of dimension D.
+        Returns:
+        - y_predicted: Predicted labels for the data in X. y_predicted is a 1-dimensional
+          array of length N, and each element is an integer giving the predicted
+          class.
+        """
+        z = self.forward(X)
+        y_predicted = np.argmax(z, axis=1)
+        accuracy = np.mean(y_predicted == y)
+        return accuracy
+
+def train_():
+    (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
+    hidden_layer_size = 256
+    n_input = 3072
+    n_output = 10
+
+    reg = 0.5
+    learning_rate = 1e-4
+    num_iters = 5_000
+    batch_size = 16
+
+    neural_net = NeuralNetwork([DenseLayer(n_input, hidden_layer_size),
+                                DropoutLayer(0.5),
+                                BatchNormLayer(hidden_layer_size),
+                                ReLULayer(),
+                                DenseLayer(hidden_layer_size, n_output)])
+    neural_net.setup_optimizer(SGD())
+    t0 = datetime.datetime.now()
+
+    loss_history = neural_net.fit(x_train, y_train, learning_rate, num_iters, batch_size)
+    t1 = datetime.datetime.now()
+    dt = t1 - t0
+
+    report = f"""# Training Softmax classifier  
+    datetime: {t1.isoformat(' ', 'seconds')}  
+    Well done in: {dt.seconds} seconds  
+    learning_rate = {learning_rate}  
+    reg = {reg}  
+    num_iters = {num_iters}  
+    batch_size = {batch_size}  
+
+    Final loss: {loss_history[-1]:.6f}   
+    Train accuracy: {neural_net.evaluate(x_train, y_train)}   
+    Test accuracy: {neural_net.evaluate(x_test, y_test)}  
+
+    <img src="weights.png">  
+    <br>
+    <img src="loss.png">
+    """
+
+    print(report)
+    with open('seminar4/report.md', 'w') as f:
+        f.write(report)
+    visualize_loss(loss_history, 'seminar4')
 
 if __name__ == '__main__':
     """1 point"""
-    (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
     # Train your neural net!
-    n_input, n_output, n_hidden = 3072, 10, 256
-    neural_net = NeuralNetwork([DenseLayer(n_input, n_hidden),
-                                DropoutLayer(0.5),
-                                BatchNormLayer(n_hidden),
-                                ReLULayer(),
-                                DenseLayer(n_hidden, n_output)])
+    train_()
+
+
