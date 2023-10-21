@@ -11,8 +11,7 @@ def random_matrix(n: int) -> np.array:
     :param n: matrix size
     :return: random n x n x 3 matrix
     """
-    arr = np.random.uniform(0, 255, size=(n, n, 3))
-    return arr.astype('uint8')
+    return np.random.randint(0, 255, size=(n, n, 3), dtype=np.uint8)
 
 
 def broadcast_array(a: np.array, n: int) -> np.array:
@@ -22,18 +21,20 @@ def broadcast_array(a: np.array, n: int) -> np.array:
     :param n: number of rows in output matrix
     :return: 2D matrix
     """
-    return np.row_stack([a]*n)
+    return np.ones(n).reshape(-1, 1) * a.reshape(1, -1)
 
 
 def inplace_operation(a: np.array, b: np.array) -> None:
     """
-    Compute  a = ((a+b)*(-a/2)) in place (without copy)
+    Compute ((a+b)*(-a/2)) in place (without copy)
     :param a: matrix A
     :param b: matrix B
     :return: None
     """
-    a+=b
-    a *= (-(a-b)/2)
+    a += b
+    a *= -1
+    a /= 2
+
 
 def get_elements(a: np.array, indices: np.array) -> np.array:
     """
@@ -51,7 +52,8 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
-    return np.choose(indices, a.T)
+    N = len(a)
+    return a[range(N), indices]
 
 
 def self_inners(a: np.array) -> np.array:
