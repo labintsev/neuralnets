@@ -6,13 +6,14 @@ import numpy as np
 from src.test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 
-def softmax(X: np.array) -> np.array:
+def softmax(Z: np.array) -> np.array:
     """
     TODO 1:
-    Compute softmax of 2D array along axis -1
-    :param X: 2D array, shape (N, C)
+    Compute softmax of 2D array Z along axis -1
+    :param Z: 2D array, shape (N, C)
     :return: softmax 2D array, shape (N, C)
     """
+
     # Compute the softmax along axis -1
     exp_X = np.exp(X - np.max(X, axis=1, keepdims=True))  # Subtracting max(X) for numerical stability
     softmax_probs = exp_X / np.sum(exp_X, axis=1, keepdims=True)

@@ -53,7 +53,9 @@ def get_elements(a: np.array, indices: np.array) -> np.array:
     :param indices: 1D array
     :return: 1D array of elements
     """
+
     return [a[i, indices[i]] for i in range(len(indices))]
+
 
 
 def self_inners(a: np.array) -> np.array:
@@ -63,5 +65,5 @@ def self_inners(a: np.array) -> np.array:
     :param a:
     :return: 2D array of inners product shape=(m, m)
     """
-
     return np.dot(a, a.T)
+
