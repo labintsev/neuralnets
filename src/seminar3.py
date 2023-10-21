@@ -89,7 +89,7 @@ class DenseLayer:
         # Your implementation shouldn't have any loops
         # raise Exception("Not implemented!")
         z = X @ self.W.value + self.B.value
-        self.X = X.copy
+        self.X = X.copy()
         return z
 
 
@@ -176,7 +176,7 @@ class TwoLayerNet:
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
             for param in layer.params().values():
-                param.grad += l2_regularization((param.value, self.reg))
+                param.grad += l2_regularization(param.value, self.reg)[1]
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):
