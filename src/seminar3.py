@@ -1,8 +1,9 @@
 """Seminar 3. Multilayer neural net"""
 import datetime
+import os
 
 import numpy as np
-from test_utils import get_preprocessed_data
+from test_utils import get_preprocessed_data, visualize_weights, visualize_loss
 
 
 class Param:
@@ -120,6 +121,7 @@ class DenseLayer:
         self.W.grad = self.X.T @ d_out
         self.B.grad = np.ones((1, batch_size)) @ d_out # (1, batch_size) @ (batch_size, n_out)
         self.B.grad = d_out.sum(axis=0, keepdims=True)
+        return d_out @ self.W.value.T
 
 
     def params(self):
@@ -176,9 +178,11 @@ class TwoLayerNet:
         for layer in reversed(self.layers):
             tmp_d_out = layer.backward(tmp_d_out)
             for param in layer.params().values():
-                param.grad += l2_regularization(param.value, self.reg)[1]
+                reg_loss, reg_grad = l2_regularization(param.value, self.reg)
+                self.loss += reg_loss
+                param.grad += reg_grad
 
-    def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
+    def fit(self, X, y, learning_rate=1e-3, num_iters=18000,
             batch_size=4, verbose=True):
         """
         Train classifier with stochastic gradient descent
@@ -200,7 +204,7 @@ class TwoLayerNet:
         # Run stochastic gradient descent to optimize W
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(len(X), batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
             # evaluate loss and gradient
             self.forward(X_batch, y_batch)
@@ -217,6 +221,11 @@ class TwoLayerNet:
                 print(f'iteration {it} / {num_iters}: loss {self.loss:.3f} ')
 
         return loss_history
+    def evaluate(self, X, y):
+        z = self.forward(X, y)
+        y_predicted = np.argmax(z, axis=1)
+        accuracy = np.mean(y_predicted == y)
+        return accuracy
 
 
 if __name__ == '__main__':
@@ -225,9 +234,36 @@ if __name__ == '__main__':
     # Save report to output/seminar3
     n_input, n_output, hidden = 3073, 10, 128
     learning_rate = 1e-4
-    reg = 1000
+    reg = 10
     num_iters = 1000
     batch_size = 64
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data()
-    cls = TwoLayerNet(n_input, n_output, hidden, reg = 10)
+    cls = TwoLayerNet(n_input, n_output, hidden, reg = 0.05)
+    t0 = datetime.datetime.now()
     loss_history = cls.fit(x_train, y_train)
+    t1 = datetime.datetime.now()
+    dt = t1 - t0
+
+    report = f"""# Training
+datetime: {t1.isoformat(' ', 'seconds')}  
+Well done in: {dt.seconds} seconds  
+learning_rate = {learning_rate}  
+reg = {reg}  
+num_iters = {num_iters}  
+batch_size = {batch_size}  
+
+Final loss: {loss_history[-1]} 
+Train accuracy: {cls.evaluate(x_train, y_train)}   
+Test accuracy: {cls.evaluate(x_test, y_test)}    
+  
+<br>
+<img src="loss.png">
+"""
+
+    print(report)
+
+    out_dir = 'output/seminar3'
+    report_path = os.path.join(out_dir, 'report.md')
+    with open(report_path, 'w') as f:
+        f.write(report)
+    visualize_loss(loss_history, out_dir)
