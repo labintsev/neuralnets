@@ -265,6 +265,7 @@ if __name__ == '__main__':
 
     print(report)
 
+
     out_dir = '../output/seminar4'
     report_path = os.path.join(out_dir, 'report.md')
     with open(report_path, 'w') as f:
