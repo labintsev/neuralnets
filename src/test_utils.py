@@ -78,7 +78,7 @@ def get_preprocessed_data(include_bias=True, local_data=False):
     return (x_train, y_train), (x_test, y_test)
 
 
-def visualize_weights(cls, out_dir='output/seminar2'):
+def visualize_weights(cls, out_dir='output/seminar4'):
     w = cls.W[:-1, :]  # strip out the bias
     w = w.reshape(32, 32, 3, 10)
 
@@ -96,7 +96,7 @@ def visualize_weights(cls, out_dir='output/seminar2'):
     plt.savefig(os.path.join(out_dir, 'weights.png'))
 
 
-def visualize_loss(loss_history, out_dir='output/seminar2'):
+def visualize_loss(loss_history, out_dir='output/seminar4'):
     fig1, ax1 = plt.subplots()
     ax1.plot(loss_history)
     ax1.set_title('Loss history')

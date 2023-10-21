@@ -214,6 +214,13 @@ class NeuralNetwork:
                 model_params[f'layer_{i}_{k}'] = v
         return model_params
     
+    def calculate_accuracy(self, X, y):
+        predicted_scores = self.forward(X)
+        predicted_labels = np.argmax(predicted_scores, axis=1)
+        correct_predictions = (predicted_labels == y)
+        accuracy = np.mean(correct_predictions)
+        return accuracy
+    
 def train():
     learning_rate = 5e-3
     reg = 0
@@ -243,6 +250,8 @@ reg = {reg}
 num_iters = {num_iters}  
 batch_size = {batch_size}  
 
+Train accuracy: {neural_net.calculate_accuracy(x_train, y_train)}   
+Test accuracy: {neural_net.calculate_accuracy(x_test, y_test)}  
 Final loss: {loss_history[-1]}   
     
 <img src="weights.png">  
@@ -252,7 +261,7 @@ Final loss: {loss_history[-1]}
 
     print(report)
 
-    out_dir = 'output/seminar2'
+    out_dir = 'output/seminar4'
     report_path = os.path.join(out_dir, 'report.md')
     with open(report_path, 'w') as f:
         f.write(report)
