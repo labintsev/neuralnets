@@ -237,8 +237,8 @@ def train_():
     n_input = 3072
     n_output = 10
 
-    reg = 0.5
-    learning_rate = 1e-3
+    reg = 0.1
+    learning_rate = 5e-2
     num_iters = 3_000
     batch_size = 128
 
