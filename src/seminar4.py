@@ -33,8 +33,7 @@ class Optimizer(ABC):
 
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
-        # TODO Update W with d_W
-        pass
+        w -= d_w * learning_rate
 
 
 class Momentum(Optimizer):
@@ -45,14 +44,25 @@ class Momentum(Optimizer):
     def step(self, w, d_w, learning_rate):
         if self.velocity is None:
             self.velocity = np.zeros_like(d_w)
-        # TODO Update W with d_W and velocity
+
+        new_velocity = self.rho * self.velocity + d_w
+
+        w -= new_velocity * learning_rate
+        self.velocity = new_velocity
 
 
 class DropoutLayer(Layer):
+    def __init__(self, p=0.5):
+        self.p = p
+        self.scale = None
+        self.mask = None
+
+
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         if train:
-            # TODO zero mask in random X position and scale remains
-            pass
+            self.mask = np.random.random(size=x.shape) > self.p
+            self.scale = 1 / (1 - self.p)
+            return x * self.scale * self.mask
         else:
             return x
 
@@ -102,11 +112,12 @@ class BatchNormLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         self.num_examples = x.shape[0]
         if train:
-            # TODO Compute mean_x and var_x
+            self.mean_x = np.mean(x, axis=0, keepdims=True)
+            self.var_x = np.var(x, axis=0, keepdims=True)
             self._update_running_variables()
         else:
-            # TODO Copy mean_x and var_x from running variables
-            pass
+            self.mean_x = self.running_mean_x
+            self.var_x = self.running_var_x
 
         self.var_x += epsilon
         self.stddev_x = np.sqrt(self.var_x)
