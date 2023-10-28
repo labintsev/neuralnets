@@ -78,18 +78,43 @@ def build_pretrained_model():
 def build_conv_model():
     model = tf.keras.models.Sequential([
         tf.keras.Input(shape=(32, 32, 3), dtype=tf.float16),
-        tf.keras.layers.Conv2D(filters=16, kernel_size=3),
+        tf.keras.layers.Conv2D(filters=64, kernel_size=7),
+        tf.keras.layers.GlobalMaxPool2D(),
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(10)
     ])
     return model
 
 
-if __name__ == '__main__':
+def train(net='../models/my_conv_net'):
     model = build_conv_model()
     model.compile(optimizer=tf.keras.optimizers.Adam(),
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=[tf.keras.metrics.SparseCategoricalAccuracy()])
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
-    model.fit(x_train, y_train, epochs=10)
+    model.fit(x_train, y_train, epochs=16, batch_size=128)
     model.evaluate(x_test, y_test)
+    model.save(net)
+
+
+def draw_weights(net_path):
+    model = tf.keras.models.load_model(net_path)
+    w = model.layers[0].kernel.numpy()
+    w_min, w_max = np.min(w), np.max(w)
+    for i in range(64):
+        plt.subplot(8, 8, i + 1)
+
+        # Rescale the weights to be between 0 and 255
+        w_img = 255.0 * (w[:, :, :, i].squeeze() - w_min) / (w_max - w_min)
+        # w_img = np.moveaxis(w_img, -1, 0)
+        plt.imshow(w_img.astype('uint8'))
+        plt.axis('off')
+    plt.savefig('../output/seminar5/weights.png')
+
+
+if __name__ == '__main__':
+    import numpy as np
+    import matplotlib.pyplot as plt
+    NET_PATH = '../models/my_conv_net'
+    train(NET_PATH)
+    draw_weights(NET_PATH)
