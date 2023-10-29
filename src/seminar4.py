@@ -8,7 +8,10 @@ from test_utils import get_preprocessed_data
 
 epsilon = 1e-3
 
-
+def l2_regularization(param_value, reg_strength):
+    reg_loss = 0.5 * reg_strength * np.sum(param_value ** 2)
+    reg_grad = reg_strength * param_value
+    return reg_loss, reg_grad
 class Layer(ABC):
 
     @abstractmethod
@@ -33,8 +36,7 @@ class Optimizer(ABC):
 
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
-        # TODO Update W with d_W
-        pass
+        w -= d_w * learning_rate
 
 
 class Momentum(Optimizer):
@@ -45,14 +47,16 @@ class Momentum(Optimizer):
     def step(self, w, d_w, learning_rate):
         if self.velocity is None:
             self.velocity = np.zeros_like(d_w)
-        # TODO Update W with d_W and velocity
+        self.velocity = self.rho * self.velocity + d_w
+        w -= self.velocity * learning_rate
 
 
 class DropoutLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         if train:
-            # TODO zero mask in random X position and scale remains
-            pass
+            self.mask = np.random.rand(*x.shape) > self.p
+            self.scale = 1 / (1 - self.p)
+            return x * self.mask * self.scale
         else:
             return x
 
@@ -89,8 +93,7 @@ class BatchNormLayer(Layer):
         is_mean_empty = np.array_equal(np.zeros(0), self.running_mean_x)
         is_var_empty = np.array_equal(np.zeros(0), self.running_var_x)
         if is_mean_empty != is_var_empty:
-            raise ValueError("Mean and Var running averages should be "
-                             "initialized at the same time")
+            raise ValueError("Mean and Var running averages should be initialized at the same time")
         if is_mean_empty:
             self.running_mean_x = self.mean_x
             self.running_var_x = self.var_x
@@ -102,11 +105,12 @@ class BatchNormLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         self.num_examples = x.shape[0]
         if train:
-            # TODO Compute mean_x and var_x
+            self.mean_x = np.mean(x, axis=0, keepdims=True)
+            self.var_x = np.var(x, axis=0, keepdims=True)
             self._update_running_variables()
         else:
-            # TODO Copy mean_x and var_x from running variables
-            pass
+            self.mean_x = self.running_mean_x
+            self.var_x = self.running_var_x
 
         self.var_x += epsilon
         self.stddev_x = np.sqrt(self.var_x)
@@ -177,7 +181,6 @@ class NeuralNetwork:
         for it in range(num_iters):
             idxs = np.random.choice(num_classes, batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
-            # evaluate loss and gradient
             z = self.forward(X_batch)
             self.compute_loss_and_gradient(z, y_batch)
             self.backward()
@@ -202,7 +205,6 @@ class NeuralNetwork:
                 model_params[f'layer_{i}_{k}'] = v
         return model_params
 
-
 if __name__ == '__main__':
     """1 point"""
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
@@ -213,3 +215,4 @@ if __name__ == '__main__':
                                 BatchNormLayer(n_hidden),
                                 ReLULayer(),
                                 DenseLayer(n_hidden, n_output)])
+
