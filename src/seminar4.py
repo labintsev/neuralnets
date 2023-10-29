@@ -1,4 +1,4 @@
-"""Seminar 4. Batch normalization and Dropout. Advanced optimization."""
+"""Semi 4. Batch normalization and Dropout. Advanced optimization."""
 
 from abc import ABC, abstractmethod
 from copy import deepcopy
