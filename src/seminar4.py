@@ -33,7 +33,7 @@ class Optimizer(ABC):
 
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
-        # TODO Update W with d_W g
+        # TODO Update W with d_W
         w -= d_w * learning_rate
 
 
