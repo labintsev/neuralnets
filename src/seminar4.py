@@ -34,7 +34,7 @@ class Optimizer(ABC):
 class SGD(Optimizer):
     def step(self, w, d_w, learning_rate):
         # TODO Update W with d_W
-        pass
+        w -= d_w * learning_rate
 
 
 class Momentum(Optimizer):
@@ -46,18 +46,24 @@ class Momentum(Optimizer):
         if self.velocity is None:
             self.velocity = np.zeros_like(d_w)
         # TODO Update W with d_W and velocity
+        new_velocity = self.rho * self.velocity + d_w
+        w -= new_velocity * learning_rate
+        self.velocity = new_velocity
 
 
 class DropoutLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         if train:
-            # TODO zero mask in random X position and scale remains
-            pass
+            self.mask = np.random.random(size=x.shape) > self.p
+            self.scale = 1 / (1 - self.p)
+            return x * self.mask * self.scale
         else:
             return x
 
+
     def backward(self, grad_input: np.ndarray) -> np.ndarray:
         return grad_input * self.mask * self.scale
+
 
     def params(self) -> dict:
         return {}
@@ -102,11 +108,12 @@ class BatchNormLayer(Layer):
     def forward(self, x: np.ndarray, train: bool = True) -> np.ndarray:
         self.num_examples = x.shape[0]
         if train:
-            # TODO Compute mean_x and var_x
+            self.mean_x = np.mean(x, axis=0, keepdims=True)
+            self.var_x = np.var(x, axis=0, keepdims=True)
             self._update_running_variables()
         else:
-            # TODO Copy mean_x and var_x from running variables
-            pass
+            self.mean_x = self.running_mean_x
+            self.var_x = self.running_var_x
 
         self.var_x += epsilon
         self.stddev_x = np.sqrt(self.var_x)
@@ -189,8 +196,8 @@ class NeuralNetwork:
 
             loss_history.append(self.loss)
 
-            if it % 100 == 0 and verbose:
-                print(f'iteration {it} / {num_iters}: loss {self.loss:.3f} ')
+            # if it % 100 == 0 and verbose:
+            #     print(f'iteration {it} / {num_iters}: loss {self.loss:.3f} ')
 
         return loss_history
 
@@ -202,14 +209,81 @@ class NeuralNetwork:
                 model_params[f'layer_{i}_{k}'] = v
         return model_params
 
+    def evaluate(self, X, y):
+        """
+        Use the trained weights of this linear classifier to predict labels for
+        data points and evaluate accuracy.
+        Inputs:
+        - X: A numpy array of shape (N, D) containing training data; there are N
+          training samples each of dimension D.
+        Returns:
+        - y_predicted: Predicted labels for the data in X. y_predicted is a 1-dimensional
+          array of length N, and each element is an integer giving the predicted
+          class.
+        """
+        z = self.forward(X)
+        y_predicted = np.argmax(z, axis=1)
+        accuracy = np.mean(y_predicted == y)
+        return accuracy
+
 
 if __name__ == '__main__':
+    # """1 point"""
+    # (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
+    # # Train your neural net!
+    # n_input, n_output, n_hidden = 3072, 10, 256
+    # neural_net = NeuralNetwork([DenseLayer(n_input, n_hidden),
+    #                             DropoutLayer(0.5),
+    #                             BatchNormLayer(n_hidden),
+    #                             ReLULayer(),
+    #                             DenseLayer(n_hidden, n_output)])
     """1 point"""
+    n_input, n_output, hidden = 3072, 10, 256
+    learning_rate = 4e-3
+    reg = 0.1
+    num_iters = 5000
+    batch_size = 64
+
     (x_train, y_train), (x_test, y_test) = get_preprocessed_data(include_bias=False)
     # Train your neural net!
-    n_input, n_output, n_hidden = 3072, 10, 256
-    neural_net = NeuralNetwork([DenseLayer(n_input, n_hidden),
+    neural_net = NeuralNetwork([DenseLayer(n_input, hidden),
                                 DropoutLayer(0.5),
-                                BatchNormLayer(n_hidden),
+                                BatchNormLayer(hidden),
                                 ReLULayer(),
-                                DenseLayer(n_hidden, n_output)])
+                                DenseLayer(hidden, n_output)])
+    neural_net.setup_optimizer(Momentum())
+    t0 = datetime.datetime.now()
+    loss_history = neural_net.fit(x_train, y_train, learning_rate, num_iters, batch_size)
+    t1 = datetime.datetime.now()
+    dt = t1 - t0
+    report = f"""# Training Softmax classifier  
+    datetime: {t1.isoformat(' ', 'seconds')}  
+    Well done in: {dt.seconds} seconds  
+    learning_rate = {learning_rate}  
+    reg = {reg}  
+    num_iters = {num_iters}  
+    batch_size = {batch_size}  
+
+    Final loss: {loss_history[-1]}   
+    Train accuracy: {neural_net.evaluate(x_train, y_train)}   
+    Test accuracy: {neural_net.evaluate(x_test, y_test)}  
+
+    <img src="weights.png">  
+    <br>
+    <img src="loss.png">
+    """
+
+    print(report)
+
+    out_dir = 'output/seminar4'
+    report_folder = Path(Path.cwd().parent, out_dir)
+    if not report_folder.exists():
+        report_folder.mkdir()
+    report_path = Path(report_folder, 'report.md')
+    with open(report_path, 'w') as f:
+        f.write(report)
+    visualize_loss(loss_history, report_folder)
+
+
+
+
