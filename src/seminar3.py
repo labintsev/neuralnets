@@ -41,8 +41,8 @@ def softmax_with_cross_entropy(Z, y):
 
 
 def l2_regularization(W, reg_strength):
-    loss = 0.5 * reg_strength * np.sum(W*W)
-    grad = np.dot(W, reg_strength)
+    loss = reg_strength * np.sum(W*W)
+    grad = 2 * np.dot(W, reg_strength)
     return loss, grad
 
 
@@ -110,8 +110,8 @@ class DenseLayer:
         # and gradients with respect to W and B
         # Add gradients of W and B to their `grad` attribute
 
-        self.B.grad += d_out.sum(0, keepdims=True)
-        self.W.grad += self.X.T @ d_out
+        self.B.grad = d_out.sum(0, keepdims=True)
+        self.W.grad = self.X.T @ d_out
         return d_out @ self.W.value.T
 
         # It should be pretty similar to linear classifier from
@@ -159,11 +159,11 @@ class TwoLayerNet:
         # Set layer parameters gradient to zeros
         # After that compute loss and gradients
         for layer in self.layers:
+            Z = layer.forward(Z)
             for param in layer.params().values():
                 param.grad = np.zeros_like(param.grad)
 
-        for layer in self.layers:
-            Z = layer.forward(Z)
+
 
         self.loss, self.d_out = softmax_with_cross_entropy(Z, y)
         return Z
@@ -179,7 +179,7 @@ class TwoLayerNet:
             for param in layer.params().values():
                 loss,grad = l2_regularization(param.value,self.reg)
                 self.loss += loss
-                param.grad += grad[0]
+                param.grad += grad
 
     def fit(self, X, y, learning_rate=1e-3, num_iters=10000,
             batch_size=4, verbose=True):

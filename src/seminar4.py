@@ -182,7 +182,7 @@ class NeuralNetwork:
         num_classes = np.max(y) + 1
         loss_history = []
         for it in range(num_iters):
-            idxs = np.random.choice(num_classes, batch_size)
+            idxs = np.random.choice(len(X), batch_size)
             X_batch, y_batch = X[idxs], y[idxs]
             # evaluate loss and gradient
             z = self.forward(X_batch)
@@ -218,8 +218,8 @@ class NeuralNetwork:
 def train(model, x_train, y_train, x_test, y_test):
     # ***** START OF YOUR CODE *****
     learning_rate = 0.005
-    reg = 0.01
-    num_iters = 10000
+    reg = 0.1
+    num_iters = 5000
     batch_size = 64
     # ******* END OF YOUR CODE ************
     t0 = datetime.datetime.now()
