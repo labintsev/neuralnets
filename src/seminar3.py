@@ -39,6 +39,7 @@ def softmax_with_cross_entropy(Z, y):
     return loss, d_out
 
 
+
 def l2_regularization(W, reg_strength):
     loss = 0.5 * reg_strength * np.sum(W*W)
     grad = np.dot(W, reg_strength)
@@ -109,15 +110,15 @@ class DenseLayer:
         # and gradients with respect to W and B
         # Add gradients of W and B to their `grad` attribute
 
-        self.B.grad = d_out.sum(0)
-        self.W.grad = self.X.T @ d_out
+        self.B.grad += d_out.sum(0, keepdims=True)
+        self.W.grad += self.X.T @ d_out
         return d_out @ self.W.value.T
 
         # It should be pretty similar to linear classifier from
         # the previous assignment
         # raise Exception("Not implemented!")
         # print('d_out shape is ', d_out.shape)
-        # print('self.W shape is ', self.W.value.shape)
+        # print('self.W shape is ', self.W.value.   shape)
         raise Exception("Not implemented!")
 
     def params(self):
