@@ -5,7 +5,7 @@ import pytest
 
 from test_utils import get_preprocessed_data
 
-
+#
 def build_conv_layer() -> tf.keras.layers.Conv2D:
     """
     Build Conv2D layer with some filters, kernel size and striding step
