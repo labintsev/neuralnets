@@ -47,7 +47,7 @@ class TestModelS3(unittest.TestCase):
         )
 
         client.download_file('neuralnets2023',
-                             os.path.join(YOUR_GIT_USER, 'model_6.zip'),
+                             f'{YOUR_GIT_USER}/model_6.zip',
                              PATH_TO_S3_MODEL+'.zip')
         shutil.unpack_archive(PATH_TO_S3_MODEL+'.zip', PATH_TO_S3_MODEL)
         model = tf.keras.models.load_model(PATH_TO_S3_MODEL)
