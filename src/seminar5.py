@@ -57,7 +57,7 @@ def build_up_conv_layer() -> tf.keras.layers.Conv2DTranspose:
     """Build Transpose Convolution layer"""
 
     # TODO Create layer with necessary filters, kernel size and strides
-    my_layer = tf.keras.layers.Conv2DTranspose(filters=3, kernel_size=2, strides=1)
+    my_layer = tf.keras.layers.Conv2DTranspose(filters=4, kernel_size=3, strides=2)
     return my_layer
 
 
