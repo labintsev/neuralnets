@@ -12,7 +12,7 @@ import dotenv
 
 from tensorflow import keras
 from tensorflow.keras import layers
-
+###
 DATA_URL = 'https://storage.yandexcloud.net/fa-bucket/cats_dogs_train.zip'
 PATH_TO_DATA_ZIP = 'data/raw/cats_dogs_train.zip'
 PATH_TO_DATA = 'data/raw/cats_dogs_train'
