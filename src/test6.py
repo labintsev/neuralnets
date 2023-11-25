@@ -35,7 +35,7 @@ class TestModelLocal(unittest.TestCase):
 
 class TestModelS3(unittest.TestCase):
     def test_model_s3(self):
-        config = dotenv.dotenv_values('.env')
+        config = dotenv.dotenv_values('..env')
         ACCESS_KEY = config['ACCESS_KEY']
         SECRET_KEY = config['SECRET_KEY']
 

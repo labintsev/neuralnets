@@ -98,7 +98,7 @@ def upload():
     shutil.make_archive(base_name=PATH_TO_MODEL,
                         format='zip',
                         root_dir=PATH_TO_MODEL)
-    config = dotenv.dotenv_values('.env')
+    config = dotenv.dotenv_values('..env')
     ACCESS_KEY = config['ACCESS_KEY']
     SECRET_KEY = config['SECRET_KEY']
 
