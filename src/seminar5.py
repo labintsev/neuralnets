@@ -15,8 +15,11 @@ def build_conv_layer() -> tf.keras.layers.Conv2D:
     :return: keras convolutional layer
     """
     # TODO Create layer with necessary filters, kernel size and striding step
-    my_layer = None
+    filters = 2
+    kernel_size = (3, 3)
+    strides = (5, 5)
 
+    my_layer = tf.keras.layers.Conv2D(filters=filters, kernel_size=kernel_size, strides=strides, padding='valid')
     return my_layer
 
 
@@ -32,8 +35,10 @@ def build_padded_conv_layer(kernel_size) -> tf.keras.layers.Conv2D:
     """
 
     # TODO Create layer with necessary filters and padding. Kernel size is builder parameter.
-    my_layer = None
+    filters = 2
+    padding = 'same'
 
+    my_layer = tf.keras.layers.Conv2D(filters=filters, kernel_size=kernel_size, padding=padding)
     return my_layer
 
 
@@ -41,7 +46,11 @@ def build_depth_wise_conv_layer() -> tf.keras.layers.DepthwiseConv2D:
     """Build DepthWise Convolution layer """
 
     # TODO Create layer with necessary kernel size and depth multiplier
-    my_layer = None
+    kernel_size = (3, 3)
+    depth_multiplier = 2
+
+    my_layer = tf.keras.layers.DepthwiseConv2D(kernel_size=kernel_size, depth_multiplier=depth_multiplier,
+                                               padding='valid')
     return my_layer
 
 
@@ -49,7 +58,10 @@ def build_pooling_layer() -> tf.keras.layers.MaxPooling2D:
     """Build MaxPooling layer with fixed pool and strides"""
 
     # TODO Create layer with necessary kernel size and strides
-    my_layer = None
+    pool_size = (2, 2)  # Adjusted pool size
+    strides = (2, 2)
+
+    my_layer = tf.keras.layers.MaxPooling2D(pool_size=pool_size, strides=strides, padding='valid')
     return my_layer
 
 
@@ -57,7 +69,9 @@ def build_up_conv_layer() -> tf.keras.layers.Conv2DTranspose:
     """Build Transpose Convolution layer"""
 
     # TODO Create layer with necessary filters, kernel size and strides
-    my_layer = None
+
+    my_layer = tf.keras.layers.Conv2DTranspose(filters=4, kernel_size=(3, 3), strides=(2, 2))
+
     return my_layer
 
 
