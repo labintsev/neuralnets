@@ -22,7 +22,7 @@ PATH_TO_TEST_DATA = 'data/raw/spam_test.csv'
 PATH_TO_MODEL = 'models/model_7'
 BUCKET_NAME = 'neuralnets2023'
 # todo fix your git user name
-YOUR_GIT_USER = 'labintsev'
+YOUR_GIT_USER = 'AJlEXANDR'
 
 
 def download_data():
@@ -42,11 +42,14 @@ def make_model():
     :return:
     """
     inputs = tf.keras.layers.Input(name='inputs', shape=[MAX_SEQ_LEN])
-    x = tf.keras.layers.Embedding(MAX_WORDS, output_dim=4, input_length=MAX_SEQ_LEN)(inputs)
-    x = tf.keras.layers.SimpleRNN(units=4)(x)
-    x = tf.keras.layers.Dense(1, name='out_layer')(x)
-    x = tf.keras.layers.Activation('sigmoid')(x)
-    recurrent_model = tf.keras.Model(inputs=inputs, outputs=x)
+    layer = tf.keras.layers.Embedding(MAX_WORDS, 50, input_length=MAX_SEQ_LEN)(inputs)
+    layer = tf.keras.layers.LSTM(32)(layer)
+    layer = tf.keras.layers.Dense(256, name='FC1', activation='relu')(layer)
+    layer = tf.keras.layers.Activation('relu')(layer)
+    layer = tf.keras.layers.Dropout(0.5)(layer)
+    layer = tf.keras.layers.Dense(1, name='out_layer')(layer)
+    layer = tf.keras.layers.Activation('sigmoid')(layer)
+    recurrent_model = tf.keras.Model(inputs=inputs, outputs=layer)
     return recurrent_model
 
 
@@ -59,15 +62,37 @@ def load_data(csv_path='data/raw/spam.csv') -> tuple:
 
 def train():
     X_train, Y_train = load_data()
+    X_test, Y_test = load_data('data/raw/spam_test.csv')
+
     tok = tf.keras.preprocessing.text.Tokenizer(num_words=MAX_WORDS)
-    tok.fit_on_texts(X_train)
+    tok.fit_on_texts(X_test)
     sequences = tok.texts_to_sequences(X_train)
     sequences_matrix = tf.keras.preprocessing.sequence.pad_sequences(sequences, maxlen=MAX_SEQ_LEN)
 
     model = make_model()
     model.summary()
-    model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy', tf.keras.metrics.Precision()])
-    model.fit(sequences_matrix, Y_train, batch_size=128, epochs=10, validation_split=0.2)
+    model.compile(loss='binary_crossentropy',
+                  optimizer=tf.keras.optimizers.AdamW(2e-4),
+                  metrics=['accuracy', tf.keras.metrics.Precision()])
+
+    callbacks = [
+        tf.keras.callbacks.ModelCheckpoint(
+            filepath='models/model_7',
+            save_best_only=True,
+            monitor='val_loss',
+            verbose=1)
+    ]
+
+    model.fit(
+        sequences_matrix,
+        Y_train,
+        batch_size=128,
+        epochs=50,
+        validation_split=0.2,
+        class_weight={0: 5, 1: 1},
+        callbacks=callbacks
+    )
+
     model.save('models/model_7')
 
 
