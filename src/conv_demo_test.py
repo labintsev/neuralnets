@@ -5,6 +5,7 @@ import tensorflow as tf
 class ConvolutionDemo(unittest.TestCase):
     def setUp(self) -> None:
         input_shape = (1, 32, 32, 3)
+
         self.x = tf.ones(input_shape)
 
     def test_conv_1d_1(self):
