@@ -106,8 +106,8 @@ def upload():
                         format='zip',
                         root_dir=PATH_TO_MODEL)
     config = dotenv.dotenv_values('..env')
-    ACCESS_KEY = 'YCAJEKTT2vSJlrWgSP8q4jBtT'
-    SECRET_KEY = 'YCPsIQfgB3bneV3Koxab0vi_rDXM2WQcs-FigSBm'
+    ACCESS_KEY = config['ACCESS_KEY']
+    SECRET_KEY = config['SECRET_KEY']
 
     client = boto3.client(
         's3',
