@@ -1,4 +1,4 @@
-"""Seminar 5. Convolutional Networks"""
+"""Seminar 6. Image Binary Classification with Keras. ML ops."""
 import argparse
 import os
 import zipfile
