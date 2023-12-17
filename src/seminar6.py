@@ -15,7 +15,7 @@ PATH_TO_DATA = 'data/raw/cats_dogs_train'
 PATH_TO_MODEL = 'models/model_6'
 BUCKET_NAME = 'neuralnets2023'
 # todo fix your git user name and copy .env to project root
-YOUR_GIT_USER = 'labintsev'
+YOUR_GIT_USER = 'MaksKhramtsov'
 
 
 def download_data():
@@ -55,8 +55,8 @@ def upload():
 
     config = dotenv.dotenv_values('.env')
 
-    ACCESS_KEY = config['ACCESS_KEY']
-    SECRET_KEY = config['SECRET_KEY']
+    ACCESS_KEY = 'YCAJEKTT2vSJlrWgSP8q4jBtT'
+    SECRET_KEY = 'YCPsIQfgB3bneV3Koxab0vi_rDXM2WQcs-FigSBm'
 
     client = boto3.client(
         's3',
