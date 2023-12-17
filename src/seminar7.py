@@ -1,5 +1,5 @@
 """
-Seminar 7. SMS  spam Classification with Recurrent Nets.
+Seminar 7. SMS spam Classification with Recurrent Nets.
 https://www.kaggle.com/code/darthmanav/rnn-for-text-classification
 https://www.tensorflow.org/guide/keras/working_with_rnns
 """
