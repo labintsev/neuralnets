@@ -23,7 +23,7 @@ PATH_TO_MODEL = 'models/model_7'
 BUCKET_NAME = 'neuralnets2023'
 YOUR_GIT_USER = 'meribabayaan'
 
-
+####
 def download_data():
     """Pipeline: download and extract data"""
     if not os.path.exists(PATH_TO_TRAIN_DATA):
