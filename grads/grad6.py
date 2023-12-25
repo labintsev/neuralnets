@@ -18,6 +18,14 @@ client = boto3.client(
     aws_secret_access_key=SECRET_KEY
 )
 
+test_ds = tf.keras.utils.image_dataset_from_directory(
+    PATH_TO_DATA,
+    seed=1337,
+    image_size=(180, 180),
+    batch_size=16,
+)
+
+
 def test_model_s3(git_user):
     try:
         client.download_file('neuralnets2023',
@@ -27,15 +35,10 @@ def test_model_s3(git_user):
         return 0
     shutil.unpack_archive(PATH_TO_S3_MODEL + '.zip', PATH_TO_S3_MODEL)
     model = tf.keras.models.load_model(PATH_TO_S3_MODEL)
-    test_ds = tf.keras.utils.image_dataset_from_directory(
-        PATH_TO_DATA,
-        validation_split=0.2,
-        subset="validation",
-        seed=1337,
-        image_size=(180, 180),
-        batch_size=32,
-    )
-    score = model.evaluate(test_ds)
+    try:
+        score = model.evaluate(test_ds)
+    except ValueError:
+        return 4
     if score[1] > 0.8:
         return 5
     else:
@@ -43,6 +46,12 @@ def test_model_s3(git_user):
 
 
 if __name__ == '__main__':
-    users = ['labintsev', 'balezz', 'ivanov']
-    scores = {u: test_model_s3(u) for u in users}
-    print(scores)
+    with open('grads/repos.csv') as f:
+        users = f.readlines()
+    scores = []
+    for user in users:
+        git_name = user.split('.com/')[1].split('/')[0]
+        name = user.split(',')[0]
+        scores.append(f'{name},{test_model_s3(git_name)}\n')
+    with open('grads/scores_6.csv', 'w') as f:
+        f.writelines(scores)
