@@ -1,31 +1,28 @@
-"""Seminar 6. Image Binary Classification with Keras. ML ops."""
+"""Seminar 5. Convolutional Networks"""
+
 import argparse
 import os
 import zipfile
 import shutil
 from urllib.request import urlretrieve
-<<<<<<< HEAD
-import keras
-from keras import layers
-=======
->>>>>>> labintsev/master
 
 import tensorflow as tf
 import boto3
 import dotenv
+
+from tensorflow import keras
+from tensorflow.keras import layers
 
 DATA_URL = 'https://storage.yandexcloud.net/fa-bucket/cats_dogs_train.zip'
 PATH_TO_DATA_ZIP = 'data/raw/cats_dogs_train.zip'
 PATH_TO_DATA = 'data/raw/cats_dogs_train'
 PATH_TO_MODEL = 'models/model_6'
 BUCKET_NAME = 'neuralnets2023'
-# todo fix your git user name and copy .env to project root
-<<<<<<< HEAD
+# todo fix your git user name and copy ..env to project root
 YOUR_GIT_USER = 'Sphealls'
-=======
-YOUR_GIT_USER = 'labintsev'
->>>>>>> labintsev/master
 
+image_size = (180, 180)
+batch_size = 64
 
 def download_data():
     """Pipeline: download and extract data"""
@@ -43,11 +40,56 @@ def download_data():
         print('Data is already extracted!')
 
 
+def get_data(augmentation=True):
+    num_skipped = 0
+    path_to_images = os.path.join(PATH_TO_DATA, "PetImages")
+    for folder_name in ("Cat", "Dog"):
+        folder_path = os.path.join(path_to_images, folder_name)
+        for fname in os.listdir(folder_path):
+            fpath = os.path.join(folder_path, fname)
+            try:
+                fobj = open(fpath, "rb")
+                is_jfif = tf.compat.as_bytes("JFIF") in fobj.peek(10)
+            finally:
+                fobj.close()
+
+            if not is_jfif:
+                num_skipped += 1
+                # Delete corrupted image
+                os.remove(fpath)
+
+    print("Deleted %d images" % num_skipped)
+
+    train_ds, val_ds = tf.keras.utils.image_dataset_from_directory(
+        path_to_images,
+        validation_split=0.2,
+        subset="both",
+        seed=1337,
+        image_size=image_size,
+        batch_size=batch_size,
+    )
+
+    if augmentation:
+        data_augmentation = keras.Sequential(
+            [
+                layers.RandomFlip("horizontal"),
+                layers.RandomRotation(0.1),
+            ]
+        )
+        train_ds = train_ds.map(
+            lambda img, label: (data_augmentation(img), label),
+            num_parallel_calls=tf.data.AUTOTUNE,
+        )
+
+    # Prefetching samples in GPU memory helps maximize GPU utilization.
+    train_ds = train_ds.prefetch(tf.data.AUTOTUNE)
+    val_ds = val_ds.prefetch(tf.data.AUTOTUNE)
+
+    return train_ds, val_ds
+
 def make_model(input_shape, num_classes):
-<<<<<<< HEAD
     inputs = keras.Input(shape=input_shape)
 
-    # Entry block
     x = layers.Rescaling(1.0 / 255)(inputs)
     x = layers.Conv2D(128, 3, strides=2, padding="same")(x)
     x = layers.BatchNormalization()(x)
@@ -79,51 +121,39 @@ def make_model(input_shape, num_classes):
 
     x = layers.GlobalAveragePooling2D()(x)
     if num_classes == 2:
+        activation = "sigmoid"
         units = 1
     else:
+        activation = "softmax"
         units = num_classes
 
-    x = layers.Dropout(0.25)(x)
-    # We specify activation=None so as to return logits
-    outputs = layers.Dense(units, activation=None)(x)
+    x = layers.Dropout(0.5)(x)
+    outputs = layers.Dense(units, activation=activation)(x)
     return keras.Model(inputs, outputs)
-=======
-    model = None
-    return model
->>>>>>> labintsev/master
 
 
 def train():
     """Pipeline: Build, train and save model to models/model_6"""
     # Todo: Copy some code from seminar5 and https://keras.io/examples/vision/image_classification_from_scratch/
     print('Training model')
-<<<<<<< HEAD
 
-    image_size = (180, 180)
-    batch_size = 128
+    train_ds, val_ds = get_data(augmentation=True)
 
-    train_ds, val_ds = keras.utils.image_dataset_from_directory(
-        "./data/raw/cats_dogs_train/PetImages",
-        validation_split=0.2,
-        subset="both",
-        seed=1337,
-        image_size=image_size,
-        batch_size=batch_size,
-    )
+    model = make_model(input_shape=[*image_size, 3], num_classes=2)
+    epochs = 6
 
-    model = make_model(input_shape=image_size + (3,), num_classes=2)
-    epochs = 1
+    callbacks = [
+        tf.keras.callbacks.ModelCheckpoint("save_at_{epoch}.keras"),
+    ]
     model.compile(
-        optimizer=keras.optimizers.Adam(3e-4),
-        loss=keras.losses.BinaryCrossentropy(from_logits=True),
-        metrics=[keras.metrics.BinaryAccuracy(name="acc")],
+        optimizer=tf.keras.optimizers.Adam(1e-3),
+        loss="binary_crossentropy",
+        metrics=["accuracy"],
     )
-=======
-    model = make_model()
->>>>>>> labintsev/master
     model.fit(
         train_ds,
         epochs=epochs,
+        callbacks=callbacks,
         validation_data=val_ds,
     )
     model.save(PATH_TO_MODEL)
@@ -137,15 +167,10 @@ def upload():
                         format='zip',
                         root_dir=PATH_TO_MODEL)
 
-    config = dotenv.dotenv_values('.env')
+    config = dotenv.dotenv_values('..env')
 
-<<<<<<< HEAD
     ACCESS_KEY = 'YCAJEKTT2vSJlrWgSP8q4jBtT'
     SECRET_KEY = 'YCPsIQfgB3bneV3Koxab0vi_rDXM2WQcs-FigSBm'
-=======
-    ACCESS_KEY = config['ACCESS_KEY']
-    SECRET_KEY = config['SECRET_KEY']
->>>>>>> labintsev/master
 
     client = boto3.client(
         's3',
@@ -170,8 +195,4 @@ if __name__ == '__main__':
     if args.train:
         train()
     if args.upload:
-<<<<<<< HEAD
         upload()
-=======
-        upload()
->>>>>>> labintsev/master
