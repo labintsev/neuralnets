@@ -1,7 +1,6 @@
 """Seminar 3. Multilayer neural net"""
 import numpy as np
 
-
 class Param:
     """
     Trainable parameter of the model
@@ -37,8 +36,8 @@ def softmax_with_cross_entropy(Z, y):
 
 
 def l2_regularization(W, reg_strength):
-    loss = 0.5 * reg_strength * np.sum(W*W)
-    grad = np.dot(W, reg_strength)
+    loss = reg_strength * np.sum(W*W)
+    grad = 2 * np.dot(W, reg_strength)
     return loss, grad
 
 
