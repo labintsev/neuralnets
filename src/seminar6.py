@@ -4,8 +4,11 @@ import os
 import zipfile
 import shutil
 from urllib.request import urlretrieve
+<<<<<<< HEAD
 import keras
 from keras import layers
+=======
+>>>>>>> labintsev/master
 
 import tensorflow as tf
 import boto3
@@ -17,7 +20,11 @@ PATH_TO_DATA = 'data/raw/cats_dogs_train'
 PATH_TO_MODEL = 'models/model_6'
 BUCKET_NAME = 'neuralnets2023'
 # todo fix your git user name and copy .env to project root
+<<<<<<< HEAD
 YOUR_GIT_USER = 'Sphealls'
+=======
+YOUR_GIT_USER = 'labintsev'
+>>>>>>> labintsev/master
 
 
 def download_data():
@@ -37,6 +44,7 @@ def download_data():
 
 
 def make_model(input_shape, num_classes):
+<<<<<<< HEAD
     inputs = keras.Input(shape=input_shape)
 
     # Entry block
@@ -79,12 +87,17 @@ def make_model(input_shape, num_classes):
     # We specify activation=None so as to return logits
     outputs = layers.Dense(units, activation=None)(x)
     return keras.Model(inputs, outputs)
+=======
+    model = None
+    return model
+>>>>>>> labintsev/master
 
 
 def train():
     """Pipeline: Build, train and save model to models/model_6"""
     # Todo: Copy some code from seminar5 and https://keras.io/examples/vision/image_classification_from_scratch/
     print('Training model')
+<<<<<<< HEAD
 
     image_size = (180, 180)
     batch_size = 128
@@ -105,6 +118,9 @@ def train():
         loss=keras.losses.BinaryCrossentropy(from_logits=True),
         metrics=[keras.metrics.BinaryAccuracy(name="acc")],
     )
+=======
+    model = make_model()
+>>>>>>> labintsev/master
     model.fit(
         train_ds,
         epochs=epochs,
@@ -123,8 +139,13 @@ def upload():
 
     config = dotenv.dotenv_values('.env')
 
+<<<<<<< HEAD
     ACCESS_KEY = 'YCAJEKTT2vSJlrWgSP8q4jBtT'
     SECRET_KEY = 'YCPsIQfgB3bneV3Koxab0vi_rDXM2WQcs-FigSBm'
+=======
+    ACCESS_KEY = config['ACCESS_KEY']
+    SECRET_KEY = config['SECRET_KEY']
+>>>>>>> labintsev/master
 
     client = boto3.client(
         's3',
@@ -149,4 +170,8 @@ if __name__ == '__main__':
     if args.train:
         train()
     if args.upload:
+<<<<<<< HEAD
         upload()
+=======
+        upload()
+>>>>>>> labintsev/master

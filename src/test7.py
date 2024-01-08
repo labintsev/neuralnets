@@ -27,12 +27,22 @@ class TestModelS3(unittest.TestCase):
         )
 
         client.download_file('neuralnets2023',
+<<<<<<< HEAD
                              os.path.join(YOUR_GIT_USER, 'model_7.zip'),
                              PATH_TO_S3_MODEL+'.zip')
         shutil.unpack_archive(PATH_TO_S3_MODEL+'.zip', PATH_TO_S3_MODEL)
         accuracy, precision = validate(PATH_TO_S3_MODEL)
         self.assertGreater(accuracy, 0.95)
         self.assertGreater(precision, 0.95)
+=======
+                             YOUR_GIT_USER + '/model_7.zip',
+                             PATH_TO_S3_MODEL+'.zip')
+        shutil.unpack_archive(PATH_TO_S3_MODEL+'.zip', PATH_TO_S3_MODEL)
+        accuracy, precision, recall = validate(PATH_TO_S3_MODEL)
+        self.assertGreater(accuracy, 0.95)
+        self.assertGreater(precision, 0.95)
+        self.assertGreater(recall, 0.9)
+>>>>>>> labintsev/master
 
 
 if __name__ == '__main__':
