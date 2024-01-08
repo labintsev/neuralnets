@@ -1,4 +1,4 @@
-"""Seminar 5. Convolutional Networks"""
+"""Seminar 6. Image Binary Classification with Keras. ML ops."""
 
 import argparse
 import os
@@ -169,8 +169,8 @@ def upload():
 
     config = dotenv.dotenv_values('..env')
 
-    ACCESS_KEY = 'YCAJEKTT2vSJlrWgSP8q4jBtT'
-    SECRET_KEY = 'YCPsIQfgB3bneV3Koxab0vi_rDXM2WQcs-FigSBm'
+    ACCESS_KEY = config['ACCESS_KEY']
+    SECRET_KEY = config['SECRET_KEY']
 
     client = boto3.client(
         's3',
