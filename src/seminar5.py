@@ -1,6 +1,6 @@
 """Seminar 5. Convolutional Networks"""
 import tensorflow as tf
-##################
+###################
 from test_utils import get_preprocessed_data
 
 
