@@ -1,6 +1,6 @@
-import os
-import shutil
+"""Run from project root, as we need .env file and download models"""
 
+import shutil
 import boto3
 import dotenv
 import tensorflow as tf
@@ -53,5 +53,6 @@ if __name__ == '__main__':
         git_name = user.split('.com/')[1].split('/')[0]
         name = user.split(',')[0]
         scores.append(f'{name},{test_model_s3(git_name)}\n')
+    scores.append('name,score6\n')
     with open('grads/scores_6.csv', 'w') as f:
-        f.writelines(scores)
+        f.writelines(sorted(scores))
